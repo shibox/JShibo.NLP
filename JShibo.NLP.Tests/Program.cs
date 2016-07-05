@@ -10,7 +10,7 @@ namespace JShibo.NLP.Tests
     {
         static void Main(string[] args)
         {
-
+            ShiboWordSegmentTests.Seg();
         }
     }
 }

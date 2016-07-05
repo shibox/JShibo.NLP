@@ -32,6 +32,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.4-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -46,10 +50,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Corpus\Tag\Nature.cs" />
+    <Compile Include="Dictionary\Other\CharType.cs" />
     <Compile Include="DoubleArrayTire.cs" />
     <Compile Include="Models.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Seg\Common\Vertex.cs" />
+    <Compile Include="Seg\Config.cs" />
+    <Compile Include="Seg\NShort\Path\AtomNode.cs" />
+    <Compile Include="Seg\Segment.cs" />
     <Compile Include="ShiboWordSegment.cs" />
+    <Compile Include="Utility\Predefine.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -12,7 +12,6 @@ namespace JShibo.NLP
         #region 字段
 
         private static int BUF_SIZE = 16384;
-        private static int UNIT_SIZE = 8; // size of int + int
 
         protected int[] checkArray;
         protected int[] baseArray;
@@ -23,7 +22,7 @@ namespace JShibo.NLP
         private int keySize;
         private int[] length;
         private int[] value;
-        protected T[] v;
+        protected T[] values;
         private int progress;
         private int nextCheckPos;
         public byte[] Frqs;
@@ -212,12 +211,12 @@ namespace JShibo.NLP
 
         public int Build(List<String> key, List<T> value)
         {
-            return Build(key, null, null, key.Count);
+            return Build(key,value.ToArray());
         }
 
         public int Build(List<String> key, T[] value)
         {
-            v = value;
+            values = value;
             return Build(key, null, null, key.Count);
         }
 
@@ -236,7 +235,6 @@ namespace JShibo.NLP
                 keyList.Add(entry.Key);
                 valueList.Add(entry.Value);
             }
-
             return Build(keyList, valueList);
         }
 
@@ -249,14 +247,14 @@ namespace JShibo.NLP
          * @param _keySize key的长度，应该设为_key.size
          * @return 是否出错
          */
-        public int Build(List<String> _key, int[] _length, int[] _value, int _keySize)
+        public int Build(List<String> keys, int[] lengths, int[] values, int size)
         {
-            if (_keySize > _key.Count || _key == null)
+            if (size > keys.Count || keys == null)
                 return 0;
-            key = _key;
-            length = _length;
-            keySize = _keySize;
-            value = _value;
+            key = keys;
+            length = lengths;
+            this.keySize = size;
+            value = values;
             progress = 0;
 
             Resize(65536 * 32); // 32个双字节
@@ -266,15 +264,12 @@ namespace JShibo.NLP
 
             Node root_node = new Node();
             root_node.left = 0;
-            root_node.right = keySize;
+            root_node.right = this.keySize;
             root_node.depth = 0;
 
             List<Node> siblings = new List<Node>();
             Fetch(root_node, siblings);
             Insert(siblings);
-
-            // size += (1 << 8 * 2) + 1; // ???
-            // if (size >= allocSize) resize (size);
 
             usedArray = null;
             key = null;
@@ -309,21 +304,6 @@ namespace JShibo.NLP
             allocSize = 0;
             size = 0;
         }
-
-        //public int getUnitSize()
-        //{
-        //    return UNIT_SIZE;
-        //}
-
-        //public int getSize()
-        //{
-        //    return size;
-        //}
-
-        //public int getTotalSize()
-        //{
-        //    return size * UNIT_SIZE;
-        //}
 
         public int GetNonzeroSize()
         {
@@ -362,9 +342,9 @@ namespace JShibo.NLP
                 if (typeof(T) == typeof(int))
                 {
                     int b = bw.ReadInt32();
-                    v = new T[b];
-                    bw.Read(bytes, 0, v.Length * 4);
-                    Buffer.BlockCopy(bytes, 0, v, 0, v.Length * 4);
+                    values = new T[b];
+                    bw.Read(bytes, 0, values.Length * 4);
+                    Buffer.BlockCopy(bytes, 0, values, 0, values.Length * 4);
                 }
                 bw.Close();
                 fs.Close();
@@ -384,11 +364,11 @@ namespace JShibo.NLP
             bw.Write(bytes, 0, bytes.Length);
             Buffer.BlockCopy(checkArray, 0, bytes, 0, bytes.Length);
             bw.Write(bytes, 0, bytes.Length);
-            if (v is int[])
+            if (values is int[])
             {
-                bw.Write(v.Length);
-                Buffer.BlockCopy(v, 0, bytes, 0, v.Length * 4);
-                bw.Write(bytes, 0, v.Length * 4);
+                bw.Write(values.Length);
+                Buffer.BlockCopy(values, 0, bytes, 0, values.Length * 4);
+                bw.Write(bytes, 0, values.Length * 4);
             }
             bw.Close();
             fs.Close();
@@ -398,7 +378,7 @@ namespace JShibo.NLP
         public bool Load(String path, List<T> value)
         {
             if (!LoadBaseAndCheck(path)) return false;
-            v = (T[])value.ToArray();
+            values = (T[])value.ToArray();
             return true;
         }
 
@@ -411,8 +391,9 @@ namespace JShibo.NLP
          */
         public bool Load(String path, T[] value)
         {
-            if (!LoadBaseAndCheckByFileChannel(path)) return false;
-            v = value;
+            if (!LoadBaseAndCheckByFileChannel(path))
+                return false;
+            values = value;
             return true;
         }
 
@@ -763,7 +744,7 @@ namespace JShibo.NLP
         {
             int index = ExactMatchSearch(key);
             if (index >= 0)
-                return v[index];
+                return values[index];
             return default(T);
         }
 
@@ -851,7 +832,7 @@ namespace JShibo.NLP
             int n = baseArray[state];
             if (state == checkArray[state] && n < 0)
             {
-                return v[-n - 1];
+                return values[-n - 1];
             }
             return default(T);
         }
@@ -1005,7 +986,7 @@ namespace JShibo.NLP
             int index = ExactMatchSearch(key);
             if (index >= 0)
             {
-                v[index] = value;
+                values[index] = value;
                 return true;
             }
 
@@ -1021,12 +1002,12 @@ namespace JShibo.NLP
          */
         public T Get(int index)
         {
-            return v[index];
+            return values[index];
         }
 
         public T[] GetValues()
         {
-            return v;
+            return values;
         }
 
         #endregion
@@ -1160,7 +1141,7 @@ namespace JShibo.NLP
                 {
                     if (kp != 0)
                     {
-                        buffer[bufferPos] = v[sid];
+                        buffer[bufferPos] = values[sid];
                         bufferPos++;
                         k = kps + kp - k + 1;
                         b = 1;
@@ -1188,7 +1169,7 @@ namespace JShibo.NLP
             }
             if (kp != 0)
             {
-                buffer[bufferPos] = v[sid];
+                buffer[bufferPos] = values[sid];
                 bufferPos++;
                 k = kps + kp - k + 1;
                 b = 1;
@@ -1199,7 +1180,7 @@ namespace JShibo.NLP
             }
             else if (sid != 0)
             {
-                buffer[bufferPos] = v[sid];
+                buffer[bufferPos] = values[sid];
                 bufferPos++;
             }
             return bufferPos;
@@ -1234,7 +1215,7 @@ namespace JShibo.NLP
                     {
                         if (frqs[sid] == 0)
                         {
-                            buffer[bufferPos] = v[sid];
+                            buffer[bufferPos] = values[sid];
                             bufferPos++;
                         }
                         else
@@ -1252,7 +1233,7 @@ namespace JShibo.NLP
                             //result.Add(key.Substring(k, i - k));
                             if (frqs[sid] == 0)
                             {
-                                buffer[bufferPos] = v[sid];
+                                buffer[bufferPos] = values[sid];
                                 bufferPos++;
                             }
                             else
@@ -1265,7 +1246,7 @@ namespace JShibo.NLP
                             //result.Add(key.Substring(k, 1));
                             if (frqs[sid] == 0)
                             {
-                                buffer[bufferPos] = v[sid];
+                                buffer[bufferPos] = values[sid];
                                 bufferPos++;
                             }
                             else
@@ -1283,7 +1264,7 @@ namespace JShibo.NLP
                 //bufferPos++;
                 if (frqs[sid] == 0)
                 {
-                    buffer[bufferPos] = v[sid];
+                    buffer[bufferPos] = values[sid];
                     bufferPos++;
                 }
                 else
@@ -1299,7 +1280,7 @@ namespace JShibo.NLP
             {
                 if (frqs[sid] == 0)
                 {
-                    buffer[bufferPos] = v[sid];
+                    buffer[bufferPos] = values[sid];
                     bufferPos++;
                 }
                 else
@@ -1343,7 +1324,7 @@ namespace JShibo.NLP
                                 {
                                     if (fpd[sid] == 0)
                                     {
-                                        buffer[bufferPos] = v[sid];
+                                        buffer[bufferPos] = values[sid];
                                         bufferPos++;
                                     }
                                     else
@@ -1362,7 +1343,7 @@ namespace JShibo.NLP
                                         //result.Add(key.Substring(k, i - k));
                                         if (fpd[sid] == 0)
                                         {
-                                            buffer[bufferPos] = v[sid];
+                                            buffer[bufferPos] = values[sid];
                                             bufferPos++;
                                         }
                                         else
@@ -1375,7 +1356,7 @@ namespace JShibo.NLP
                                         //result.Add(key.Substring(k, 1));
                                         if (fpd[sid] == 0)
                                         {
-                                            buffer[bufferPos] = v[sid];
+                                            buffer[bufferPos] = values[sid];
                                             bufferPos++;
                                         }
                                         else
@@ -1391,7 +1372,7 @@ namespace JShibo.NLP
                         {
                             if (fpd[sid] == 0)
                             {
-                                buffer[bufferPos] = v[sid];
+                                buffer[bufferPos] = values[sid];
                                 bufferPos++;
                             }
                             else
@@ -1407,7 +1388,7 @@ namespace JShibo.NLP
                         {
                             if (fpd[sid] == 0)
                             {
-                                buffer[bufferPos] = v[sid];
+                                buffer[bufferPos] = values[sid];
                                 bufferPos++;
                             }
                             else
