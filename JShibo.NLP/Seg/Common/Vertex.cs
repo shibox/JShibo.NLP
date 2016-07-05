@@ -1,4 +1,5 @@
 ﻿using JShibo.NLP.Corpus.Tag;
+using JShibo.NLP.Dictionary;
 using JShibo.NLP.Utility;
 using System;
 using System.Collections.Generic;
@@ -75,8 +76,9 @@ namespace JShibo.NLP.Seg.Common
          * @param attribute 属性
          */
         public Vertex(String word, String realWord, CoreDictionary.Attribute attribute)
+            : this(word, realWord, attribute, -1)
         {
-            this(word, realWord, attribute, -1);
+            
         }
 
         public Vertex(String word, String realWord, CoreDictionary.Attribute attribute, int wordID)
@@ -85,7 +87,7 @@ namespace JShibo.NLP.Seg.Common
             this.wordID = wordID;
             this.attribute = attribute;
             if (word == null) word = compileRealWord(realWord, attribute);
-            assert realWord.length() > 0 : "构造空白节点会导致死循环！";
+            //assert realWord.length() > 0 : "构造空白节点会导致死循环！";
             this.word = word;
             this.realWord = realWord;
         }
@@ -98,22 +100,22 @@ namespace JShibo.NLP.Seg.Common
          */
         private String compileRealWord(String realWord, CoreDictionary.Attribute attribute)
         {
-            if (attribute.nature.length == 1)
+            if (attribute.nature.Length == 1)
             {
                 switch (attribute.nature[0])
                 {
-                    case nr:
-                    case nr1:
-                    case nr2:
-                    case nrf:
-                    case nrj:
+                    case Nature.nr:
+                    case Nature.nr1:
+                    case Nature.nr2:
+                    case Nature.nrf:
+                    case Nature.nrj:
                         {
                             wordID = CoreDictionary.NR_WORD_ID;
                             //                    this.attribute = CoreDictionary.get(CoreDictionary.NR_WORD_ID);
                             return Predefine.TAG_PEOPLE;
                         }
-                    case ns:
-                    case nsf:
+                    case Nature.ns:
+                    case Nature.nsf:
                         {
                             wordID = CoreDictionary.NS_WORD_ID;
                             // 在地名识别的时候,希望类似"河镇"的词语保持自己的词性,而不是未##地的词性
@@ -121,35 +123,35 @@ namespace JShibo.NLP.Seg.Common
                             return Predefine.TAG_PLACE;
                         }
                     //                case nz:
-                    case nx:
+                    case Nature.nx:
                         {
                             wordID = CoreDictionary.NX_WORD_ID;
                             this.attribute = CoreDictionary.get(CoreDictionary.NX_WORD_ID);
                             return Predefine.TAG_PROPER;
                         }
-                    case nt:
-                    case ntc:
-                    case ntcf:
-                    case ntcb:
-                    case ntch:
-                    case nto:
-                    case ntu:
-                    case nts:
-                    case nth:
-                    case nit:
+                    case Nature.nt:
+                    case Nature.ntc:
+                    case Nature.ntcf:
+                    case Nature.ntcb:
+                    case Nature.ntch:
+                    case Nature.nto:
+                    case Nature.ntu:
+                    case Nature.nts:
+                    case Nature.nth:
+                    case Nature.nit:
                         {
                             wordID = CoreDictionary.NT_WORD_ID;
                             this.attribute = CoreDictionary.get(CoreDictionary.NT_WORD_ID);
                             return Predefine.TAG_GROUP;
                         }
-                    case m:
-                    case mq:
+                    case Nature.m:
+                    case Nature.mq:
                         {
                             wordID = CoreDictionary.M_WORD_ID;
                             this.attribute = CoreDictionary.get(CoreDictionary.M_WORD_ID);
                             return Predefine.TAG_NUMBER;
                         }
-                    case x:
+                    case Nature.x:
                         {
                             wordID = CoreDictionary.X_WORD_ID;
                             this.attribute = CoreDictionary.get(CoreDictionary.X_WORD_ID);
@@ -161,7 +163,7 @@ namespace JShibo.NLP.Seg.Common
                     //                    word= Predefine.TAG_OTHER;
                     //                }
                     //                break;
-                    case t:
+                    case Nature.t:
                         {
                             wordID = CoreDictionary.T_WORD_ID;
                             this.attribute = CoreDictionary.get(CoreDictionary.T_WORD_ID);
@@ -180,13 +182,15 @@ namespace JShibo.NLP.Seg.Common
          * @param attribute
          */
         public Vertex(String realWord, CoreDictionary.Attribute attribute)
+            : this(null, realWord, attribute)
         {
-            this(null, realWord, attribute);
+            
         }
 
         public Vertex(String realWord, CoreDictionary.Attribute attribute, int wordID)
+            : this(null, realWord, attribute, wordID)
         {
-            this(null, realWord, attribute, wordID);
+            
         }
 
         /**
@@ -194,9 +198,10 @@ namespace JShibo.NLP.Seg.Common
          *
          * @param entry
          */
-        public Vertex(Map.Entry<String, CoreDictionary.Attribute> entry)
+        public Vertex(KeyValuePair<String, CoreDictionary.Attribute> entry)
+            : this(entry.Key, entry.Value)
         {
-            this(entry.getKey(), entry.getValue());
+            
         }
 
         /**
@@ -205,13 +210,15 @@ namespace JShibo.NLP.Seg.Common
          * @param realWord
          */
         public Vertex(String realWord)
+            : this(null, realWord, CoreDictionary.get(realWord))
         {
-            this(null, realWord, CoreDictionary.get(realWord));
+            
         }
 
         public Vertex(char realWord, CoreDictionary.Attribute attribute)
+            : this(realWord.ToString(), attribute)
         {
-            this(String.valueOf(realWord), attribute);
+            
         }
 
         /**
@@ -240,13 +247,13 @@ namespace JShibo.NLP.Seg.Common
          * @param nature 词性
          * @return 如果锁定词性在词性列表中，返回真，否则返回假
          */
-        public boolean confirmNature(Nature nature)
+        public bool confirmNature(Nature nature)
         {
-            if (attribute.nature.length == 1 && attribute.nature[0] == nature)
+            if (attribute.nature.Length == 1 && attribute.nature[0] == nature)
             {
                 return true;
             }
-            boolean result = true;
+            bool result = true;
             int frequency = attribute.getNatureFrequency(nature);
             if (frequency == 0)
             {
@@ -264,19 +271,19 @@ namespace JShibo.NLP.Seg.Common
          * @param updateWord 是否更新预编译字串
          * @return 如果锁定词性在词性列表中，返回真，否则返回假
          */
-        public boolean confirmNature(Nature nature, boolean updateWord)
+        public bool confirmNature(Nature nature, bool updateWord)
         {
             switch (nature)
             {
 
-                case m:
+                case Nature.m:
                     word = Predefine.TAG_NUMBER;
                     break;
-                case t:
+                case Nature.t:
                     word = Predefine.TAG_TIME;
                     break;
                 default:
-                    logger.warning("没有与" + nature + "对应的case");
+                    //logger.warning("没有与" + nature + "对应的case");
                     break;
             }
 
@@ -290,7 +297,7 @@ namespace JShibo.NLP.Seg.Common
          */
         public Nature getNature()
         {
-            if (attribute.nature.length == 1)
+            if (attribute.nature.Length == 1)
             {
                 return attribute.nature[0];
             }
@@ -308,7 +315,7 @@ namespace JShibo.NLP.Seg.Common
             return attribute.nature[0];
         }
 
-        public boolean hasNature(Nature nature)
+        public bool hasNature(Nature nature)
         {
             return attribute.getNatureFrequency(nature) > 0;
         }
@@ -466,8 +473,8 @@ namespace JShibo.NLP.Seg.Common
             return new Vertex(Predefine.TAG_END, " ", new CoreDictionary.Attribute(Nature.end, Predefine.MAX_FREQUENCY / 10), CoreDictionary.getWordID(Predefine.TAG_END));
         }
 
-        @Override
-        public String toString()
+        
+        public override String ToString()
         {
             return realWord;
             //        return "WordNode{" +

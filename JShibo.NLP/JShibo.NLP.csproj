@@ -50,16 +50,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collection\Trie\BinTrie\BaseNode.cs" />
+    <Compile Include="Collection\Trie\BinTrie\BinTrie.cs" />
+    <Compile Include="Collection\Trie\DoubleArrayTrie.cs" />
+    <Compile Include="Collection\Trie\DoubleArrayTrie_old.cs" />
+    <Compile Include="Collection\Trie\ITrie.cs" />
     <Compile Include="Corpus\Tag\Nature.cs" />
+    <Compile Include="Dictionary\CoreBiGramTableDictionary.cs" />
+    <Compile Include="Dictionary\CoreDictionary.cs" />
+    <Compile Include="Dictionary\CustomDictionary.cs" />
+    <Compile Include="Dictionary\Other\CharTable.cs" />
     <Compile Include="Dictionary\Other\CharType.cs" />
-    <Compile Include="DoubleArrayTire.cs" />
+    <Compile Include="ShiboDoubleArrayTire.cs" />
+    <Compile Include="HanLP.cs" />
     <Compile Include="Models.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Seg\Common\Term.cs" />
     <Compile Include="Seg\Common\Vertex.cs" />
     <Compile Include="Seg\Config.cs" />
     <Compile Include="Seg\NShort\Path\AtomNode.cs" />
     <Compile Include="Seg\Segment.cs" />
     <Compile Include="ShiboWordSegment.cs" />
+    <Compile Include="Summary\BM25.cs" />
+    <Compile Include="Summary\TextRankSentence.cs" />
+    <Compile Include="Utility\LexiconUtility.cs" />
+    <Compile Include="Utility\MathTools.cs" />
     <Compile Include="Utility\Predefine.cs" />
   </ItemGroup>
   <ItemGroup>

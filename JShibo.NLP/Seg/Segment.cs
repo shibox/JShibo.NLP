@@ -1,4 +1,8 @@
-﻿using JShibo.NLP.Seg.NShort.Path;
+﻿using JShibo.NLP.Corpus.Tag;
+using JShibo.NLP.Dictionary.Other;
+using JShibo.NLP.Seg.Common;
+using JShibo.NLP.Seg.NShort.Path;
+using JShibo.NLP.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,14 +45,14 @@ namespace JShibo.NLP.Seg
             int[] charTypeArray = new int[end - start];
 
             // 生成对应单个汉字的字符类型数组
-            for (int i = 0; i < charTypeArray.length; ++i)
+            for (int i = 0; i < charTypeArray.Length; ++i)
             {
                 c = charArray[i + start];
                 charTypeArray[i] = CharType.get(c);
 
-                if (c == '.' && i + start < (charArray.length - 1) && CharType.get(charArray[i + start + 1]) == CharType.CT_NUM)
+                if (c == '.' && i + start < (charArray.Length - 1) && CharType.get(charArray[i + start + 1]) == CharType.CT_NUM)
                     charTypeArray[i] = CharType.CT_NUM;
-                else if (c == '.' && i + start < (charArray.length - 1) && charArray[i + start + 1] >= '0' && charArray[i + start + 1] <= '9')
+                else if (c == '.' && i + start < (charArray.Length - 1) && charArray[i + start + 1] >= '0' && charArray[i + start + 1] <= '9')
                     charTypeArray[i] = CharType.CT_SINGLE;
                 else if (charTypeArray[i] == CharType.CT_LETTER)
                     charTypeArray[i] = CharType.CT_SINGLE;
@@ -62,38 +66,38 @@ namespace JShibo.NLP.Seg
                 if (nCurType == CharType.CT_CHINESE || nCurType == CharType.CT_INDEX ||
                         nCurType == CharType.CT_DELIMITER || nCurType == CharType.CT_OTHER)
                 {
-                    String single = String.valueOf(charArray[pCur]);
-                    if (single.length() != 0)
-                        atomSegment.add(new AtomNode(single, nCurType));
+                    String single = charArray[pCur].ToString();
+                    if (single.Length != 0)
+                        atomSegment.Add(new AtomNode(single, nCurType));
                     pCur++;
                 }
                 //如果是字符、数字或者后面跟随了数字的小数点“.”则一直取下去。
                 else if (pCur < end - 1 && ((nCurType == CharType.CT_SINGLE) || nCurType == CharType.CT_NUM))
                 {
-                    sb.delete(0, sb.length());
-                    sb.append(charArray[pCur]);
+                    sb.Remove(0, sb.Length);
+                    sb.Append(charArray[pCur]);
 
-                    boolean reachEnd = true;
+                    bool reachEnd = true;
                     while (pCur < end - 1)
                     {
                         nNextType = charTypeArray[++pCur - start];
 
                         if (nNextType == nCurType)
-                            sb.append(charArray[pCur]);
+                            sb.Append(charArray[pCur]);
                         else
                         {
                             reachEnd = false;
                             break;
                         }
                     }
-                    atomSegment.add(new AtomNode(sb.toString(), nCurType));
+                    atomSegment.Add(new AtomNode(sb.ToString(), nCurType));
                     if (reachEnd)
                         pCur++;
                 }
                 // 对于所有其它情况
                 else
                 {
-                    atomSegment.add(new AtomNode(charArray[pCur], nCurType));
+                    atomSegment.Add(new AtomNode(charArray[pCur], nCurType));
                     pCur++;
                 }
             }
@@ -111,12 +115,12 @@ namespace JShibo.NLP.Seg
          */
         protected static List<AtomNode> simpleAtomSegment(char[] charArray, int start, int end)
         {
-            List<AtomNode> atomNodeList = new LinkedList<AtomNode>();
-            atomNodeList.add(new AtomNode(new String(charArray, start, end - start), Predefine.CT_LETTER));
+            List<AtomNode> atomNodeList = new List<AtomNode>();
+            atomNodeList.Add(new AtomNode(new String(charArray, start, end - start), Predefine.CT_LETTER));
             return atomNodeList;
         }
 
-        /**
+        /**s
          * 快速原子分词，希望用这个方法替换掉原来缓慢的方法
          *
          * @param charArray
@@ -126,7 +130,7 @@ namespace JShibo.NLP.Seg
          */
         protected static List<AtomNode> quickAtomSegment(char[] charArray, int start, int end)
         {
-            List<AtomNode> atomNodeList = new LinkedList<AtomNode>();
+            List<AtomNode> atomNodeList = new List<AtomNode>();
             int offsetAtom = start;
             int preType = CharType.get(charArray[offsetAtom]);
             int curType;
@@ -144,13 +148,13 @@ namespace JShibo.NLP.Seg
                             if (curType != CharType.CT_NUM) break;
                         }
                     }
-                    atomNodeList.add(new AtomNode(new String(charArray, start, offsetAtom - start), preType));
+                    atomNodeList.Add(new AtomNode(new String(charArray, start, offsetAtom - start), preType));
                     start = offsetAtom;
                 }
                 preType = curType;
             }
             if (offsetAtom == end)
-                atomNodeList.add(new AtomNode(new String(charArray, start, offsetAtom - start), preType));
+                atomNodeList.Add(new AtomNode(new String(charArray, start, offsetAtom - start), preType));
 
             return atomNodeList;
         }
@@ -162,11 +166,12 @@ namespace JShibo.NLP.Seg
          */
         protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList)
         {
-            Vertex[] wordNet = new Vertex[vertexList.size()];
-            vertexList.toArray(wordNet);
+            //Vertex[] wordNet = new Vertex[vertexList.Count];
+            //vertexList.ToArray(wordNet);
+            Vertex[] wordNet = vertexList.ToArray();
             // DAT合并
             DoubleArrayTrie<CoreDictionary.Attribute> dat = CustomDictionary.dat;
-            for (int i = 0; i < wordNet.length; ++i)
+            for (int i = 0; i < wordNet.Length; ++i)
             {
                 int state = 1;
                 state = dat.transition(wordNet[i].realWord, state);
@@ -176,7 +181,7 @@ namespace JShibo.NLP.Seg
                     int to = i + 1;
                     int end = to;
                     CoreDictionary.Attribute value = dat.output(state);
-                    for (; to < wordNet.length; ++to)
+                    for (; to < wordNet.Length; ++to)
                     {
                         state = dat.transition(wordNet[to].realWord, state);
                         if (state < 0) break;
@@ -192,10 +197,10 @@ namespace JShibo.NLP.Seg
                         StringBuilder sbTerm = new StringBuilder();
                         for (int j = start; j < end; ++j)
                         {
-                            sbTerm.append(wordNet[j]);
+                            sbTerm.Append(wordNet[j]);
                             wordNet[j] = null;
                         }
-                        wordNet[i] = new Vertex(sbTerm.toString(), value);
+                        wordNet[i] = new Vertex(sbTerm.ToString(), value);
                         i = end - 1;
                     }
                 }
@@ -203,20 +208,20 @@ namespace JShibo.NLP.Seg
             // BinTrie合并
             if (CustomDictionary.trie != null)
             {
-                for (int i = 0; i < wordNet.length; ++i)
+                for (int i = 0; i < wordNet.Length; ++i)
                 {
                     if (wordNet[i] == null) continue;
-                    BaseNode<CoreDictionary.Attribute> state = CustomDictionary.trie.transition(wordNet[i].realWord.toCharArray(), 0);
+                    BaseNode<CoreDictionary.Attribute> state = CustomDictionary.trie.transition(wordNet[i].realWord.ToCharArray(), 0);
                     if (state != null)
                     {
                         int start = i;
                         int to = i + 1;
                         int end = to;
                         CoreDictionary.Attribute value = state.getValue();
-                        for (; to < wordNet.length; ++to)
+                        for (; to < wordNet.Length; ++to)
                         {
                             if (wordNet[to] == null) continue;
-                            state = state.transition(wordNet[to].realWord.toCharArray(), 0);
+                            state = state.transition(wordNet[to].realWord.ToCharArray(), 0);
                             if (state == null) break;
                             if (state.getValue() != null)
                             {
@@ -230,19 +235,19 @@ namespace JShibo.NLP.Seg
                             for (int j = start; j < end; ++j)
                             {
                                 if (wordNet[j] == null) continue;
-                                sbTerm.append(wordNet[j]);
+                                sbTerm.Append(wordNet[j]);
                                 wordNet[j] = null;
                             }
-                            wordNet[i] = new Vertex(sbTerm.toString(), value);
+                            wordNet[i] = new Vertex(sbTerm.ToString(), value);
                             i = end - 1;
                         }
                     }
                 }
             }
-            vertexList.clear();
-            for (Vertex vertex : wordNet)
+            vertexList.Clear();
+            foreach (Vertex vertex in wordNet)
             {
-                if (vertex != null) vertexList.add(vertex);
+                if (vertex != null) vertexList.Add(vertex);
             }
             return vertexList;
         }
@@ -253,7 +258,7 @@ namespace JShibo.NLP.Seg
          */
         protected void mergeNumberQuantifier(List<Vertex> termList, WordNet wordNetAll, Config config)
         {
-            if (termList.size() < 4) return;
+            if (termList.Count < 4) return;
             StringBuilder sbQuantifier = new StringBuilder();
             ListIterator<Vertex> iterator = termList.listIterator();
             iterator.next();
@@ -263,13 +268,13 @@ namespace JShibo.NLP.Seg
                 Vertex pre = iterator.next();
                 if (pre.hasNature(Nature.m))
                 {
-                    sbQuantifier.append(pre.realWord);
+                    sbQuantifier.Append(pre.realWord);
                     Vertex cur = null;
                     while (iterator.hasNext() && (cur = iterator.next()).hasNature(Nature.m))
                     {
-                        sbQuantifier.append(cur.realWord);
+                        sbQuantifier.Append(cur.realWord);
                         iterator.remove();
-                        removeFromWordNet(cur, wordNetAll, line, sbQuantifier.length());
+                        removeFromWordNet(cur, wordNetAll, line, sbQuantifier.Length);
                     }
                     if (cur != null)
                     {
@@ -277,28 +282,28 @@ namespace JShibo.NLP.Seg
                         {
                             if (config.indexMode)
                             {
-                                wordNetAll.add(line, new Vertex(sbQuantifier.toString(), new CoreDictionary.Attribute(Nature.m)));
+                                wordNetAll.add(line, new Vertex(sbQuantifier.ToString(), new CoreDictionary.Attribute(Nature.m)));
                             }
-                            sbQuantifier.append(cur.realWord);
+                            sbQuantifier.Append(cur.realWord);
                             iterator.remove();
-                            removeFromWordNet(cur, wordNetAll, line, sbQuantifier.length());
+                            removeFromWordNet(cur, wordNetAll, line, sbQuantifier.Length);
                         }
                         else
                         {
-                            line += cur.realWord.length();   // (cur = iterator.next()).hasNature(Nature.m) 最后一个next可能不含q词性
+                            line += cur.realWord.Length;   // (cur = iterator.next()).hasNature(Nature.m) 最后一个next可能不含q词性
                         }
                     }
-                    if (sbQuantifier.length() != pre.realWord.length())
+                    if (sbQuantifier.Length != pre.realWord.Length)
                     {
-                        pre.realWord = sbQuantifier.toString();
+                        pre.realWord = sbQuantifier.ToString();
                         pre.word = Predefine.TAG_NUMBER;
                         pre.attribute = new CoreDictionary.Attribute(Nature.mq);
                         pre.wordID = CoreDictionary.M_WORD_ID;
-                        sbQuantifier.setLength(0);
+                        sbQuantifier.Length = 0;
                     }
                 }
-                sbQuantifier.setLength(0);
-                line += pre.realWord.length();
+                sbQuantifier.Length = 0;
+                line += pre.realWord.Length;
             }
             //        System.out.println(wordNetAll);
         }
@@ -314,12 +319,12 @@ namespace JShibo.NLP.Seg
         {
             LinkedList<Vertex>[] vertexes = wordNetAll.getVertexes();
             // 将其从wordNet中删除
-            for (Vertex vertex : vertexes[line + length])
+            foreach (Vertex vertex in vertexes[line + length])
             {
                 if (vertex.from == cur)
                     vertex.from = null;
             }
-            ListIterator<Vertex> iterator = vertexes[line + length - cur.realWord.length()].listIterator();
+            ListIterator<Vertex> iterator = vertexes[line + length - cur.realWord.Length].listIterator();
             while (iterator.hasNext())
             {
                 Vertex vertex = iterator.next();
@@ -336,7 +341,7 @@ namespace JShibo.NLP.Seg
          */
         public List<Term> seg(String text)
         {
-            char[] charArray = text.toCharArray();
+            char[] charArray = text.ToCharArray();
             if (HanLP.Config.Normalization)
             {
                 CharTable.normalization(charArray);
@@ -347,8 +352,8 @@ namespace JShibo.NLP.Seg
                 String[] sentenceArray = new String[sentenceList.size()];
                 sentenceList.toArray(sentenceArray);
                 //noinspection unchecked
-                List<Term>[] termListArray = new List[sentenceArray.length];
-                final int per = sentenceArray.length / config.threadNumber;
+                List<Term>[] termListArray = new List<Term>(sentenceArray.Length);
+                final int per = sentenceArray.Length / config.threadNumber;
                 WorkThread[] threadArray = new WorkThread[config.threadNumber];
                 for (int i = 0; i < config.threadNumber - 1; ++i)
                 {
@@ -360,7 +365,7 @@ namespace JShibo.NLP.Seg
                 threadArray[config.threadNumber - 1].start();
                 try
                 {
-                    for (WorkThread thread : threadArray)
+                    foreach (WorkThread thread in threadArray)
                     {
                         thread.join();
                     }

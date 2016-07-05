@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JShibo.NLP
+namespace JShibo.NLP.Collection.Trie
 {
-    public class DoubleArrayTire<T>
+    public class DoubleArrayTrie<T>
     {
         #region 字段
 
@@ -211,7 +211,7 @@ namespace JShibo.NLP
 
         public int Build(List<String> key, List<T> value)
         {
-            return Build(key,value.ToArray());
+            return Build(key, value.ToArray());
         }
 
         public int Build(List<String> key, T[] value)
@@ -282,7 +282,7 @@ namespace JShibo.NLP
 
         #region 构造函数
 
-        public DoubleArrayTire()
+        public DoubleArrayTrie()
         {
             checkArray = null;
             baseArray = null;
@@ -1052,7 +1052,7 @@ namespace JShibo.NLP
             List<string> result = new List<string>();
             int b = 1, p = 0, n, k = 0;
             int kps = 0, kp = 0, sid = 0;
-            start:
+        start:
             for (int i = pos; i < len;)
             {
                 p = b + key[i] + 1;
@@ -1121,7 +1121,7 @@ namespace JShibo.NLP
             //List<string> result = new List<string>();
             int b = 1, p = 0, n, k = 0;
             int kps = 0, kp = 0, sid = 0;
-            start:
+        start:
             for (int i = pos; i < len;)
             {
                 p = b + key[i] + 1;
@@ -1193,7 +1193,7 @@ namespace JShibo.NLP
             //List<string> result = new List<string>();
             int b = 1, p = 0, n, k = 0;
             int kps = 0, kp = 0, sid = 0;
-            start:
+        start:
             for (int i = pos; i < len;)
             {
                 p = b + key[i] + 1;
@@ -1302,7 +1302,7 @@ namespace JShibo.NLP
                 {
                     fixed (char* kpd = key)
                     {
-                        start:
+                    start:
                         for (int i = pos; i < len;)
                         {
                             p = b + kpd[i] + 1;
@@ -1408,6 +1408,6 @@ namespace JShibo.NLP
 
         #endregion
 
-        
+
     }
 }
