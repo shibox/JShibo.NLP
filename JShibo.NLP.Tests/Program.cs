@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JShibo.NLP
+namespace JShibo.NLP.Tests
 {
-    public class Class1
+    class Program
     {
+        static void Main(string[] args)
+        {
+
+        }
     }
 }
