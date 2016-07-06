@@ -50,6 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algoritm\Ahocorasick\interval\Interval.cs" />
+    <Compile Include="Algoritm\Ahocorasick\interval\Intervalable.cs" />
+    <Compile Include="Algoritm\Ahocorasick\trie\Emit.cs" />
+    <Compile Include="Algoritm\Ahocorasick\trie\State.cs" />
+    <Compile Include="Algoritm\Ahocorasick\trie\Trie.cs" />
+    <Compile Include="Algoritm\Ahocorasick\trie\TrieConfig.cs" />
     <Compile Include="Algoritm\Viterbi.cs" />
     <Compile Include="Collection\AhoCorasick\AhoCorasickDoubleArrayTrie.cs" />
     <Compile Include="Collection\AhoCorasick\State.cs" />
@@ -71,18 +77,24 @@
     <Compile Include="Dictionary\CoreDictionary.cs" />
     <Compile Include="Dictionary\CoreDictionaryTransformMatrixDictionary.cs" />
     <Compile Include="Dictionary\CustomDictionary.cs" />
-    <Compile Include="Dictionary\NR\JapanesePersonDictionary.cs" />
+    <Compile Include="Dictionary\NS\NSDictionary.cs" />
+    <Compile Include="Dictionary\NS\PlaceDictionary.cs" />
+    <Compile Include="Dictionary\NT\NTDictionary.cs" />
+    <Compile Include="Dictionary\NT\OrganizationDictionary.cs" />
+    <Compile Include="Recognition\NR\JapanesePersonDictionary.cs" />
     <Compile Include="Dictionary\NR\JapanesePersonRecognition.cs" />
     <Compile Include="Dictionary\NR\NRConstant.cs" />
     <Compile Include="Dictionary\NR\NRDictionary.cs" />
     <Compile Include="Dictionary\NR\NRPattern.cs" />
     <Compile Include="Dictionary\NR\PersonDictionary.cs" />
     <Compile Include="Dictionary\NR\TranslatedPersonDictionary.cs" />
-    <Compile Include="Dictionary\NR\TranslatedPersonRecognition.cs" />
+    <Compile Include="Recognition\NR\TranslatedPersonRecognition.cs" />
     <Compile Include="Dictionary\Other\CharTable.cs" />
     <Compile Include="Dictionary\Other\CharType.cs" />
     <Compile Include="Dictionary\TransformMatrixDictionary.cs" />
     <Compile Include="Recognition\NR\PersonRecognition.cs" />
+    <Compile Include="Recognition\NS\PlaceRecognition.cs" />
+    <Compile Include="Recognition\NT\OrganizationRecognition.cs" />
     <Compile Include="Seg\Common\Edge.cs" />
     <Compile Include="Seg\Common\EdgeFrom.cs" />
     <Compile Include="Seg\Common\Graph.cs" />
@@ -111,10 +123,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Recognition\NS\" />
-    <Folder Include="Recognition\NT\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -23,33 +23,33 @@ namespace JShibo.NLP.Recognition.NR
             if (HanLP.Config.DEBUG)
             {
                 StringBuilder sbLog = new StringBuilder();
-                Iterator<Vertex> iterator = pWordSegResult.iterator();
+                //Iterator<Vertex> iterator = pWordSegResult.iterator();
                 foreach (EnumItem<Corpus.Tag.NR> nrEnumItem in roleTagList)
                 {
                     sbLog.Append('[');
-                    sbLog.Append(iterator.next().realWord);
+                    //sbLog.Append(iterator.next().realWord);
                     sbLog.Append(' ');
                     sbLog.Append(nrEnumItem);
                     sbLog.Append(']');
                 }
-                System.out.printf("人名角色观察：%s\n", sbLog.ToString());
+                Console.WriteLine("人名角色观察：%s\n", sbLog.ToString());
             }
             List<Corpus.Tag.NR> nrList = viterbiComputeSimply(roleTagList);
             if (HanLP.Config.DEBUG)
             {
                 StringBuilder sbLog = new StringBuilder();
-                Iterator<Vertex> iterator = pWordSegResult.iterator();
+                //Iterator<Vertex> iterator = pWordSegResult.iterator();
                 sbLog.Append('[');
                 foreach (Corpus.Tag.NR nr in nrList)
                 {
-                    sbLog.Append(iterator.next().realWord);
+                    //sbLog.Append(iterator.next().realWord);
                     sbLog.Append('/');
                     sbLog.Append(nr);
                     sbLog.Append(" ,");
                 }
-                if (sbLog.Length > 1) sbLog.delete(sbLog.Length - 2, sbLog.Length);
+                if (sbLog.Length > 1) sbLog.Remove(sbLog.Length - 2, sbLog.Length);
                 sbLog.Append(']');
-                System.out.printf("人名角色标注：%s\n", sbLog.ToString());
+                Console.WriteLine("人名角色标注：%s\n", sbLog.ToString());
             }
 
             PersonDictionary.parsePattern(nrList, pWordSegResult, wordNetOptimum, wordNetAll);

@@ -1,5 +1,6 @@
 ﻿using JShibo.NLP.Corpus.Tag;
 using JShibo.NLP.Dictionary;
+using JShibo.NLP.Recognition.NR;
 using JShibo.NLP.Seg.Common;
 using JShibo.NLP.Utility;
 using System;
@@ -29,59 +30,59 @@ namespace JShibo.NLP.Dictionary.NR
             StringBuilder sbName = new StringBuilder();
             int appendTimes = 0;
             char[] charArray = wordNetAll.charArray;
-            BaseSearcher searcher = JapanesePersonDictionary.getSearcher(charArray);
+            BaseSearcher<KeyValuePair<String, char>> searcher = JapanesePersonDictionary.getSearcher(charArray);
             KeyValuePair<String, char> entry;
             int activeLine = 1;
             int preOffset = 0;
-            while ((entry = searcher.next()) != null)
-            {
-                char label = entry.Value;
-                String key = entry.Key;
-                int offset = searcher.getOffset();
-                if (preOffset != offset)
-                {
-                    if (appendTimes > 1 && sbName.Length > 2) // 日本人名最短为3字
-                    {
-                        insertName(sbName.ToString(), activeLine, wordNetOptimum, wordNetAll);
-                    }
-                    sbName.Length = 0;
-                    appendTimes = 0;
-                }
-                if (appendTimes == 0)
-                {
-                    if (label == JapanesePersonDictionary.X)
-                    {
-                        sbName.Append(key);
-                        ++appendTimes;
-                        activeLine = offset + 1;
-                    }
-                }
-                else
-                {
-                    if (label == JapanesePersonDictionary.M)
-                    {
-                        sbName.Append(key);
-                        ++appendTimes;
-                    }
-                    else
-                    {
-                        if (appendTimes > 1 && sbName.Length > 2)
-                        {
-                            insertName(sbName.ToString(), activeLine, wordNetOptimum, wordNetAll);
-                        }
-                        sbName.Length = 0;
-                        appendTimes = 0;
-                    }
-                }
-                preOffset = offset + key.Length;
-            }
-            if (sbName.Length > 0)
-            {
-                if (appendTimes > 1)
-                {
-                    insertName(sbName.ToString(), activeLine, wordNetOptimum, wordNetAll);
-                }
-            }
+            //while ((entry = searcher.next()) != null)
+            //{
+            //    char label = entry.Value;
+            //    String key = entry.Key;
+            //    int offset = searcher.getOffset();
+            //    if (preOffset != offset)
+            //    {
+            //        if (appendTimes > 1 && sbName.Length > 2) // 日本人名最短为3字
+            //        {
+            //            insertName(sbName.ToString(), activeLine, wordNetOptimum, wordNetAll);
+            //        }
+            //        sbName.Length = 0;
+            //        appendTimes = 0;
+            //    }
+            //    if (appendTimes == 0)
+            //    {
+            //        if (label == JapanesePersonDictionary.X)
+            //        {
+            //            sbName.Append(key);
+            //            ++appendTimes;
+            //            activeLine = offset + 1;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        if (label == JapanesePersonDictionary.M)
+            //        {
+            //            sbName.Append(key);
+            //            ++appendTimes;
+            //        }
+            //        else
+            //        {
+            //            if (appendTimes > 1 && sbName.Length > 2)
+            //            {
+            //                insertName(sbName.ToString(), activeLine, wordNetOptimum, wordNetAll);
+            //            }
+            //            sbName.Length = 0;
+            //            appendTimes = 0;
+            //        }
+            //    }
+            //    preOffset = offset + key.Length;
+            //}
+            //if (sbName.Length > 0)
+            //{
+            //    if (appendTimes > 1)
+            //    {
+            //        insertName(sbName.ToString(), activeLine, wordNetOptimum, wordNetAll);
+            //    }
+            //}
         }
 
         /**

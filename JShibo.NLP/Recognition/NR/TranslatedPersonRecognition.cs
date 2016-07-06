@@ -1,4 +1,6 @@
 ﻿using JShibo.NLP.Corpus.Tag;
+using JShibo.NLP.Dictionary;
+using JShibo.NLP.Dictionary.NR;
 using JShibo.NLP.Seg.Common;
 using JShibo.NLP.Utility;
 using System;
@@ -7,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JShibo.NLP.Dictionary.NR
+namespace JShibo.NLP.Recognition.NR
 {
     /**
  * 音译人名识别
@@ -25,13 +27,13 @@ namespace JShibo.NLP.Dictionary.NR
         {
             StringBuilder sbName = new StringBuilder();
             int appendTimes = 0;
-            ListIterator<Vertex> listIterator = segResult.listIterator();
-            listIterator.next();
+            List<Vertex>.Enumerator listIterator = segResult.GetEnumerator();
+            listIterator.MoveNext();
             int line = 1;
             int activeLine = 1;
-            while (listIterator.hasNext())
+            while (listIterator.MoveNext())
             {
-                Vertex vertex = listIterator.next();
+                Vertex vertex = listIterator.Current;
                 if (appendTimes > 0)
                 {
                     if (vertex.guessNature() == Nature.nrf || TranslatedPersonDictionary.containsKey(vertex.realWord))

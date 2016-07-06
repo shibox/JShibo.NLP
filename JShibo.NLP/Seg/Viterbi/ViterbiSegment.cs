@@ -1,5 +1,6 @@
 ﻿using JShibo.NLP.Dictionary.NR;
 using JShibo.NLP.Recognition.NR;
+using JShibo.NLP.Recognition.NS;
 using JShibo.NLP.Seg.Common;
 using System;
 using System.Collections.Generic;

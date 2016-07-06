@@ -34,7 +34,7 @@ namespace JShibo.NLP.Corpus.Dictionary.Item
          * 创建一个条目，其标签频次都是1，各标签由参数指定
          * @param labels
          */
-        public EnumItem(E[] labels)
+        public EnumItem(params E[] labels)
                 : this()
         {
 
