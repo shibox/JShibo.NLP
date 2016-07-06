@@ -1,4 +1,6 @@
 ﻿using JShibo.NLP.Corpus.Tag;
+using JShibo.NLP.Dictionary;
+using JShibo.NLP.Seg.Common;
 using JShibo.NLP.Utility;
 using System;
 using System.Collections.Generic;

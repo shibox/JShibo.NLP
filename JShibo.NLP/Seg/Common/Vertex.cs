@@ -302,7 +302,7 @@ namespace JShibo.NLP.Seg.Common
                 return attribute.nature[0];
             }
 
-            return null;
+            return default(Nature);
         }
 
         /**

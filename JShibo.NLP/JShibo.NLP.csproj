@@ -50,17 +50,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algoritm\Viterbi.cs" />
     <Compile Include="Collection\Trie\BinTrie\BaseNode.cs" />
     <Compile Include="Collection\Trie\BinTrie\BinTrie.cs" />
     <Compile Include="Collection\Trie\DoubleArrayTrie.cs" />
     <Compile Include="Collection\Trie\DoubleArrayTrie_old.cs" />
     <Compile Include="Collection\Trie\ITrie.cs" />
+    <Compile Include="Corpus\Dictionary\Item\EnumItem.cs" />
     <Compile Include="Corpus\Tag\Nature.cs" />
+    <Compile Include="Corpus\Util\CustomNatureUtility.cs" />
     <Compile Include="Dictionary\CoreBiGramTableDictionary.cs" />
     <Compile Include="Dictionary\CoreDictionary.cs" />
+    <Compile Include="Dictionary\CoreDictionaryTransformMatrixDictionary.cs" />
     <Compile Include="Dictionary\CustomDictionary.cs" />
     <Compile Include="Dictionary\Other\CharTable.cs" />
     <Compile Include="Dictionary\Other\CharType.cs" />
+    <Compile Include="Dictionary\TransformMatrixDictionary.cs" />
+    <Compile Include="Seg\Common\Edge.cs" />
+    <Compile Include="Seg\Common\EdgeFrom.cs" />
+    <Compile Include="Seg\Common\Graph.cs" />
+    <Compile Include="Seg\Common\WordNet.cs" />
+    <Compile Include="Seg\Viterbi\ViterbiSegment.cs" />
+    <Compile Include="Seg\WordBasedGenerativeModelSegment.cs" />
     <Compile Include="ShiboDoubleArrayTire.cs" />
     <Compile Include="HanLP.cs" />
     <Compile Include="Models.cs" />
@@ -76,6 +87,8 @@
     <Compile Include="Utility\LexiconUtility.cs" />
     <Compile Include="Utility\MathTools.cs" />
     <Compile Include="Utility\Predefine.cs" />
+    <Compile Include="Utility\SentencesUtil.cs" />
+    <Compile Include="Utility\TextUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

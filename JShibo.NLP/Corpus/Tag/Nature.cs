@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JShibo.NLP.Corpus.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -757,8 +758,79 @@ namespace JShibo.NLP.Corpus.Tag
 
     }
 
-    public class NatureUtils
+    public static class NatureUtils
     {
+        /**
+             * 词性是否以该前缀开头<br>
+             *     词性根据开头的几个字母可以判断大的类别
+             * @param prefix 前缀
+             * @return 是否以该前缀开头
+             */
+        public static bool startsWith(this Nature nature, String prefix)
+        {
+            return nature.ToString().StartsWith(prefix);
+        }
+
+        /**
+         * 词性是否以该前缀开头<br>
+         *     词性根据开头的几个字母可以判断大的类别
+         * @param prefix 前缀
+         * @return 是否以该前缀开头
+         */
+        public static bool startsWith(this Nature nature, char prefix)
+        {
+            return nature.ToString()[0] == prefix;
+        }
+
+        /**
+         * 词性的首字母<br>
+         *     词性根据开头的几个字母可以判断大的类别
+         * @return
+         */
+        public static char firstChar(this Nature nature)
+        {
+            return nature.ToString()[0];
+        }
+
+        /**
+         * 安全地将字符串类型的词性转为Enum类型，如果未定义该词性，则返回null
+         * @param name 字符串词性
+         * @return Enum词性
+         */
+        public static Nature fromString(String name)
+        {
+            try
+            {
+                Nature nature = default(Nature);
+                Enum.TryParse<Nature>(name, out nature);
+                return nature;
+            }
+            catch (Exception e)
+            {
+                return default(Nature);
+            }
+        }
+
+        /**
+         * 创建自定义词性,如果已有该对应词性,则直接返回已有的词性
+         * @param name 字符串词性
+         * @return Enum词性
+         */
+        public static Nature create(String name)
+        {
+            try
+            {
+                Nature nature = default(Nature);
+                Enum.TryParse<Nature>(name, out nature);
+                return nature;
+            }
+            catch (Exception e)
+            {
+                //return CustomNatureUtility.addNature(name);
+                return default(Nature);
+            }
+        }
+
         ///**
         //     * 词性是否以该前缀开头<br>
         //     *     词性根据开头的几个字母可以判断大的类别
@@ -825,6 +897,6 @@ namespace JShibo.NLP.Corpus.Tag
         //    }
         //}
     }
-    
+
 
 }

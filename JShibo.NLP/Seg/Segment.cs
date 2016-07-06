@@ -1,4 +1,7 @@
-﻿using JShibo.NLP.Corpus.Tag;
+﻿using JShibo.NLP.Collection.Trie;
+using JShibo.NLP.Collection.Trie.BinTrie;
+using JShibo.NLP.Corpus.Tag;
+using JShibo.NLP.Dictionary;
 using JShibo.NLP.Dictionary.Other;
 using JShibo.NLP.Seg.Common;
 using JShibo.NLP.Seg.NShort.Path;
@@ -7,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JShibo.NLP.Seg
@@ -36,7 +40,7 @@ namespace JShibo.NLP.Seg
          */
         protected static List<AtomNode> atomSegment(char[] charArray, int start, int end)
         {
-            
+
             List<AtomNode> atomSegment = new List<AtomNode>();
             int pCur = start, nCurType, nNextType;
             StringBuilder sb = new StringBuilder();
@@ -166,8 +170,6 @@ namespace JShibo.NLP.Seg
          */
         protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList)
         {
-            //Vertex[] wordNet = new Vertex[vertexList.Count];
-            //vertexList.ToArray(wordNet);
             Vertex[] wordNet = vertexList.ToArray();
             // DAT合并
             DoubleArrayTrie<CoreDictionary.Attribute> dat = CustomDictionary.dat;
@@ -180,29 +182,29 @@ namespace JShibo.NLP.Seg
                     int start = i;
                     int to = i + 1;
                     int end = to;
-                    CoreDictionary.Attribute value = dat.output(state);
-                    for (; to < wordNet.Length; ++to)
-                    {
-                        state = dat.transition(wordNet[to].realWord, state);
-                        if (state < 0) break;
-                        CoreDictionary.Attribute output = dat.output(state);
-                        if (output != null)
-                        {
-                            value = output;
-                            end = to + 1;
-                        }
-                    }
-                    if (value != null)
-                    {
-                        StringBuilder sbTerm = new StringBuilder();
-                        for (int j = start; j < end; ++j)
-                        {
-                            sbTerm.Append(wordNet[j]);
-                            wordNet[j] = null;
-                        }
-                        wordNet[i] = new Vertex(sbTerm.ToString(), value);
-                        i = end - 1;
-                    }
+                    //CoreDictionary.Attribute value = dat.output(state);
+                    //for (; to < wordNet.Length; ++to)
+                    //{
+                    //    state = dat.transition(wordNet[to].realWord, state);
+                    //    if (state < 0) break;
+                    //    CoreDictionary.Attribute output = dat.output(state);
+                    //    if (output != null)
+                    //    {
+                    //        value = output;
+                    //        end = to + 1;
+                    //    }
+                    //}
+                    //if (value != null)
+                    //{
+                    //    StringBuilder sbTerm = new StringBuilder();
+                    //    for (int j = start; j < end; ++j)
+                    //    {
+                    //        sbTerm.Append(wordNet[j]);
+                    //        wordNet[j] = null;
+                    //    }
+                    //    wordNet[i] = new Vertex(sbTerm.ToString(), value);
+                    //    i = end - 1;
+                    //}
                 }
             }
             // BinTrie合并
@@ -260,20 +262,20 @@ namespace JShibo.NLP.Seg
         {
             if (termList.Count < 4) return;
             StringBuilder sbQuantifier = new StringBuilder();
-            ListIterator<Vertex> iterator = termList.listIterator();
-            iterator.next();
+            List<Vertex>.Enumerator iterator = termList.GetEnumerator();
+            //iterator.next();
             int line = 1;
-            while (iterator.hasNext())
+            while (iterator.MoveNext())
             {
-                Vertex pre = iterator.next();
+                Vertex pre = iterator.Current;
                 if (pre.hasNature(Nature.m))
                 {
                     sbQuantifier.Append(pre.realWord);
                     Vertex cur = null;
-                    while (iterator.hasNext() && (cur = iterator.next()).hasNature(Nature.m))
+                    while (iterator.MoveNext() && (cur = iterator.Current).hasNature(Nature.m))
                     {
                         sbQuantifier.Append(cur.realWord);
-                        iterator.remove();
+                        //iterator.remove();
                         removeFromWordNet(cur, wordNetAll, line, sbQuantifier.Length);
                     }
                     if (cur != null)
@@ -285,7 +287,7 @@ namespace JShibo.NLP.Seg
                                 wordNetAll.add(line, new Vertex(sbQuantifier.ToString(), new CoreDictionary.Attribute(Nature.m)));
                             }
                             sbQuantifier.Append(cur.realWord);
-                            iterator.remove();
+                            //iterator.remove();
                             removeFromWordNet(cur, wordNetAll, line, sbQuantifier.Length);
                         }
                         else
@@ -317,18 +319,18 @@ namespace JShibo.NLP.Seg
          */
         private static void removeFromWordNet(Vertex cur, WordNet wordNetAll, int line, int length)
         {
-            LinkedList<Vertex>[] vertexes = wordNetAll.getVertexes();
+            List<Vertex>[] vertexes = wordNetAll.getVertexes();
             // 将其从wordNet中删除
             foreach (Vertex vertex in vertexes[line + length])
             {
                 if (vertex.from == cur)
                     vertex.from = null;
             }
-            ListIterator<Vertex> iterator = vertexes[line + length - cur.realWord.Length].listIterator();
-            while (iterator.hasNext())
+            List<Vertex>.Enumerator iterator = vertexes[line + length - cur.realWord.Length].GetEnumerator();
+            while (iterator.MoveNext())
             {
-                Vertex vertex = iterator.next();
-                if (vertex == cur) iterator.remove();
+                Vertex vertex = iterator.Current;
+                //if (vertex == cur) iterator.remove();
             }
         }
 
@@ -346,54 +348,53 @@ namespace JShibo.NLP.Seg
             {
                 CharTable.normalization(charArray);
             }
-            if (config.threadNumber > 1 && charArray.length > 10000)    // 小文本多线程没意义，反而变慢了
+            if (config.threadNumber > 1 && charArray.Length > 10000)    // 小文本多线程没意义，反而变慢了
             {
                 List<String> sentenceList = SentencesUtil.toSentenceList(charArray);
-                String[] sentenceArray = new String[sentenceList.size()];
-                sentenceList.toArray(sentenceArray);
+                String[] sentenceArray = sentenceList.ToArray();
                 //noinspection unchecked
-                List<Term>[] termListArray = new List<Term>(sentenceArray.Length);
-                final int per = sentenceArray.Length / config.threadNumber;
+                List<Term>[] termListArray = new List<Term>[sentenceArray.Length];
+                int per = sentenceArray.Length / config.threadNumber;
                 WorkThread[] threadArray = new WorkThread[config.threadNumber];
                 for (int i = 0; i < config.threadNumber - 1; ++i)
                 {
                     int from = i * per;
-                    threadArray[i] = new WorkThread(sentenceArray, termListArray, from, from + per);
-                    threadArray[i].start();
+                    //threadArray[i] = new WorkThread(sentenceArray, termListArray, from, from + per);
+                    //threadArray[i].start();
                 }
-                threadArray[config.threadNumber - 1] = new WorkThread(sentenceArray, termListArray, (config.threadNumber - 1) * per, sentenceArray.length);
-                threadArray[config.threadNumber - 1].start();
+                threadArray[config.threadNumber - 1] = new WorkThread(sentenceArray, termListArray, (config.threadNumber - 1) * per, sentenceArray.Length);
+                //threadArray[config.threadNumber - 1].start();
                 try
                 {
                     foreach (WorkThread thread in threadArray)
                     {
-                        thread.join();
+                        //thread.join();
                     }
                 }
-                catch (InterruptedException e)
+                catch (Exception e)
                 {
-                    logger.severe("线程同步异常：" + TextUtility.exceptionToString(e));
-                    return Collections.emptyList();
+                    //logger.severe("线程同步异常：" + TextUtility.exceptionToString(e));
+                    //return Collections.emptyList();
                 }
-                List<Term> termList = new LinkedList<Term>();
+                List<Term> termList = new List<Term>();
                 if (config.offset || config.indexMode)  // 由于分割了句子，所以需要重新校正offset
                 {
                     int sentenceOffset = 0;
-                    for (int i = 0; i < sentenceArray.length; ++i)
+                    for (int i = 0; i < sentenceArray.Length; ++i)
                     {
-                        for (Term term : termListArray[i])
+                        foreach (Term term in termListArray[i])
                         {
                             term.offset += sentenceOffset;
-                            termList.add(term);
+                            termList.Add(term);
                         }
-                        sentenceOffset += sentenceArray[i].length();
+                        sentenceOffset += sentenceArray[i].Length;
                     }
                 }
                 else
                 {
-                    for (List<Term> list : termListArray)
+                    foreach (List<Term> list in termListArray)
                     {
-                        termList.addAll(list);
+                        termList.AddRange(list);
                     }
                 }
 
@@ -437,7 +438,7 @@ namespace JShibo.NLP.Seg
          */
         public List<Term> seg(char[] text)
         {
-            assert text != null;
+            //assert text != null;
             if (HanLP.Config.Normalization)
             {
                 CharTable.normalization(text);
@@ -453,11 +454,11 @@ namespace JShibo.NLP.Seg
          */
         public List<List<Term>> seg2sentence(String text)
         {
-            List<List<Term>> resultList = new LinkedList<List<Term>>();
+            List<List<Term>> resultList = new List<List<Term>>();
             {
-                for (String sentence : SentencesUtil.toSentenceList(text))
+                foreach (String sentence in SentencesUtil.toSentenceList(text))
                 {
-                    resultList.add(segSentence(sentence.toCharArray()));
+                    resultList.Add(segSentence(sentence.ToCharArray()));
                 }
             }
 
@@ -477,7 +478,7 @@ namespace JShibo.NLP.Seg
          *
          * @return
          */
-        public Segment enableIndexMode(boolean enable)
+        public Segment enableIndexMode(bool enable)
         {
             config.indexMode = enable;
             return this;
@@ -489,7 +490,7 @@ namespace JShibo.NLP.Seg
          * @param enable
          * @return
          */
-        public Segment enablePartOfSpeechTagging(boolean enable)
+        public Segment enablePartOfSpeechTagging(bool enable)
         {
             config.speechTagging = enable;
             return this;
@@ -501,7 +502,7 @@ namespace JShibo.NLP.Seg
          * @param enable
          * @return
          */
-        public Segment enableNameRecognize(boolean enable)
+        public Segment enableNameRecognize(bool enable)
         {
             config.nameRecognize = enable;
             config.updateNerConfig();
@@ -514,7 +515,7 @@ namespace JShibo.NLP.Seg
          * @param enable
          * @return
          */
-        public Segment enablePlaceRecognize(boolean enable)
+        public Segment enablePlaceRecognize(bool enable)
         {
             config.placeRecognize = enable;
             config.updateNerConfig();
@@ -527,7 +528,7 @@ namespace JShibo.NLP.Seg
          * @param enable
          * @return
          */
-        public Segment enableOrganizationRecognize(boolean enable)
+        public Segment enableOrganizationRecognize(bool enable)
         {
             config.organizationRecognize = enable;
             config.updateNerConfig();
@@ -539,7 +540,7 @@ namespace JShibo.NLP.Seg
          *
          * @param enable
          */
-        public Segment enableCustomDictionary(boolean enable)
+        public Segment enableCustomDictionary(bool enable)
         {
             config.useCustomDictionary = enable;
             return this;
@@ -550,7 +551,7 @@ namespace JShibo.NLP.Seg
          *
          * @param enable
          */
-        public Segment enableTranslatedNameRecognize(boolean enable)
+        public Segment enableTranslatedNameRecognize(bool enable)
         {
             config.translatedNameRecognize = enable;
             config.updateNerConfig();
@@ -562,7 +563,7 @@ namespace JShibo.NLP.Seg
          *
          * @param enable
          */
-        public Segment enableJapaneseNameRecognize(boolean enable)
+        public Segment enableJapaneseNameRecognize(bool enable)
         {
             config.japaneseNameRecognize = enable;
             config.updateNerConfig();
@@ -575,7 +576,7 @@ namespace JShibo.NLP.Seg
          * @param enable
          * @return
          */
-        public Segment enableOffset(boolean enable)
+        public Segment enableOffset(bool enable)
         {
             config.offset = enable;
             return this;
@@ -587,7 +588,7 @@ namespace JShibo.NLP.Seg
          * @param enable
          * @return
          */
-        public Segment enableNumberQuantifierRecognize(boolean enable)
+        public Segment enableNumberQuantifierRecognize(bool enable)
         {
             config.numberQuantifierRecognize = enable;
             return this;
@@ -599,7 +600,7 @@ namespace JShibo.NLP.Seg
          * @param enable
          * @return
          */
-        public Segment enableAllNamedEntityRecognize(boolean enable)
+        public Segment enableAllNamedEntityRecognize(bool enable)
         {
             config.nameRecognize = enable;
             config.japaneseNameRecognize = enable;
@@ -610,54 +611,55 @@ namespace JShibo.NLP.Seg
             return this;
         }
 
-        class WorkThread extends Thread
+        class WorkThread //: Thread
         {
-            String []
+            String[]
             sentenceArray;
             List<Term>[]
             termListArray;
-        int from;
-        int to;
+            int from;
+            int to;
 
-        public WorkThread(String[] sentenceArray, List<Term>[] termListArray, int from, int to)
-        {
-            this.sentenceArray = sentenceArray;
-            this.termListArray = termListArray;
-            this.from = from;
-            this.to = to;
-        }
-
-        @Override
-        public void run()
-        {
-            for (int i = from; i < to; ++i)
+            public WorkThread(String[] sentenceArray, List<Term>[] termListArray, int from, int to)
             {
-                termListArray[i] = segSentence(sentenceArray[i].toCharArray());
+                this.sentenceArray = sentenceArray;
+                this.termListArray = termListArray;
+                this.from = from;
+                this.to = to;
+            }
+
+
+            public void run()
+            {
+                for (int i = from; i < to; ++i)
+                {
+                    //termListArray[i] = segSentence(sentenceArray[i].ToCharArray());
+                }
             }
         }
-    }
 
-    /**
-     * 开启多线程
-     * @param enable true表示开启4个线程，false表示单线程
-     * @return
-     */
-    public Segment enableMultithreading(boolean enable)
-    {
-        if (enable) config.threadNumber = 4;
-        else config.threadNumber = 1;
-        return this;
-    }
+        /**
+         * 开启多线程
+         * @param enable true表示开启4个线程，false表示单线程
+         * @return
+         */
+        public Segment enableMultithreading(bool enable)
+        {
+            if (enable) config.threadNumber = 4;
+            else config.threadNumber = 1;
+            return this;
+        }
 
-    /**
-     * 开启多线程
-     * @param threadNumber 线程数量
-     * @return
-     */
-    public Segment enableMultithreading(int threadNumber)
-    {
-        config.threadNumber = threadNumber;
-        return this;
+        /**
+         * 开启多线程
+         * @param threadNumber 线程数量
+         * @return
+         */
+        public Segment enableMultithreading(int threadNumber)
+        {
+            config.threadNumber = threadNumber;
+            return this;
+        }
     }
 }
 
