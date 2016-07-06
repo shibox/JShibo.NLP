@@ -1,4 +1,7 @@
-﻿using System;
+﻿using JShibo.NLP.Dictionary.NR;
+using JShibo.NLP.Recognition.NR;
+using JShibo.NLP.Seg.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +17,7 @@ namespace JShibo.NLP.Seg.Viterbi
  */
     public class ViterbiSegment : WordBasedGenerativeModelSegment
     {
-        @Override
+       
     protected List<Term> segSentence(char[] sentence)
     {
         //        long start = System.currentTimeMillis();
@@ -25,7 +28,7 @@ namespace JShibo.NLP.Seg.Viterbi
         //        System.out.println("构图：" + (System.currentTimeMillis() - start));
         if (HanLP.Config.DEBUG)
         {
-            System.out.printf("粗分词网：\n%s\n", wordNetAll);
+            //System.out.printf("粗分词网：\n%s\n", wordNetAll);
         }
         //        start = System.currentTimeMillis();
         List<Vertex> vertexList = viterbi(wordNetAll);
@@ -38,7 +41,7 @@ namespace JShibo.NLP.Seg.Viterbi
 
         if (HanLP.Config.DEBUG)
         {
-            System.out.println("粗分结果" + convert(vertexList, false));
+            //System.out.println("粗分结果" + convert(vertexList, false));
         }
 
         // 数字识别
@@ -51,7 +54,7 @@ namespace JShibo.NLP.Seg.Viterbi
         if (config.ner)
         {
             WordNet wordNetOptimum = new WordNet(sentence, vertexList);
-            int preSize = wordNetOptimum.size();
+            int preSize = wordNetOptimum.Size();
             if (config.nameRecognize)
             {
                 PersonRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
@@ -74,15 +77,15 @@ namespace JShibo.NLP.Seg.Viterbi
                 vertexList = viterbi(wordNetOptimum);
                 wordNetOptimum.clear();
                 wordNetOptimum.addAll(vertexList);
-                preSize = wordNetOptimum.size();
+                preSize = wordNetOptimum.Size();
                 OrganizationRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
             }
-            if (wordNetOptimum.size() != preSize)
+            if (wordNetOptimum.Size() != preSize)
             {
                 vertexList = viterbi(wordNetOptimum);
                 if (HanLP.Config.DEBUG)
                 {
-                    System.out.printf("细分词网：\n%s\n", wordNetOptimum);
+                    //System.out.printf("细分词网：\n%s\n", wordNetOptimum);
                 }
             }
         }
@@ -102,32 +105,32 @@ namespace JShibo.NLP.Seg.Viterbi
         return convert(vertexList, config.offset);
     }
 
-    private static List<Vertex> viterbi(WordNet wordNet)
+    private static LinkedList<Vertex> viterbi(WordNet wordNet)
     {
-        // 避免生成对象，优化速度
-        LinkedList<Vertex> nodes[] = wordNet.getVertexes();
+            // 避免生成对象，优化速度
+            LinkedList<Vertex>[] nodes = wordNet.getVertexes();
         LinkedList<Vertex> vertexList = new LinkedList<Vertex>();
-        for (Vertex node : nodes[1])
+        foreach (Vertex node in nodes[1])
         {
-            node.updateFrom(nodes[0].getFirst());
+            node.updateFrom(nodes[0].First());
         }
-        for (int i = 1; i < nodes.length - 1; ++i)
+        for (int i = 1; i < nodes.Length - 1; ++i)
         {
             LinkedList<Vertex> nodeArray = nodes[i];
             if (nodeArray == null) continue;
-            for (Vertex node : nodeArray)
+            foreach (Vertex node in nodeArray)
             {
                 if (node.from == null) continue;
-                for (Vertex to : nodes[i + node.realWord.length()])
+                foreach (Vertex to in nodes[i + node.realWord.Length])
                 {
                     to.updateFrom(node);
                 }
             }
         }
-        Vertex from = nodes[nodes.length - 1].getFirst();
+        Vertex from = nodes[nodes.Length - 1].First();
         while (from != null)
         {
-            vertexList.addFirst(from);
+            vertexList.AddFirst(from);
             from = from.from;
         }
         return vertexList;

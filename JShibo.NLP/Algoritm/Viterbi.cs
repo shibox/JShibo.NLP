@@ -162,9 +162,9 @@ namespace JShibo.NLP.Algoritm
          * @param <E>                       EnumItem的具体类型
          * @return 预测结果
          */
-        public static <E extends Enum<E>> List<E> computeEnum(List<EnumItem<E>> roleTagList, TransformMatrixDictionary<E> transformMatrixDictionary)
+        public static  List<E> computeEnum<E>(List<EnumItem<E>> roleTagList, TransformMatrixDictionary<E> transformMatrixDictionary)
         {
-            int length = roleTagList.size() - 1;
+            int length = roleTagList.Count - 1;
             List<E> tagList = new List<E>(roleTagList.Count);
             double[][] cost = new double[2][];  // 滚动数组
             Iterator<EnumItem<E>> iterator = roleTagList.iterator();
@@ -176,11 +176,11 @@ namespace JShibo.NLP.Algoritm
             HashSet<E> preTagSet;
             {
                 EnumItem<E> item = iterator.next();
-                cost[0] = new double[item.labelMap.size()];
+                cost[0] = new double[item.labelMap.Count];
                 int j = 0;
                 foreach (E cur in item.labelMap)
                 {
-                    cost[0][j] = transformMatrixDictionary.transititon_probability[pre.ordinal()][cur.ordinal()] - Math.log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+                    cost[0][j] = transformMatrixDictionary.transititon_probability[pre.ordinal()][cur.ordinal()] - Math.Log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
                     ++j;
                 }
                 preTagSet = item.labelMap.keySet();
@@ -191,7 +191,7 @@ namespace JShibo.NLP.Algoritm
                 int index_i = i & 1;
                 int index_i_1 = 1 - index_i;
                 EnumItem<E> item = iterator.next();
-                cost[index_i] = new double[item.labelMap.size()];
+                cost[index_i] = new double[item.labelMap.Count];
                 double perfect_cost_line = Double.MaxValue;
                 int k = 0;
                 HashSet<E> curTagSet = item.labelMap.keySet();

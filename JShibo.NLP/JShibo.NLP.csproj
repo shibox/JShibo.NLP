@@ -51,21 +51,38 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algoritm\Viterbi.cs" />
+    <Compile Include="Collection\AhoCorasick\AhoCorasickDoubleArrayTrie.cs" />
+    <Compile Include="Collection\AhoCorasick\State.cs" />
     <Compile Include="Collection\Trie\BinTrie\BaseNode.cs" />
     <Compile Include="Collection\Trie\BinTrie\BinTrie.cs" />
     <Compile Include="Collection\Trie\DoubleArrayTrie.cs" />
     <Compile Include="Collection\Trie\DoubleArrayTrie_old.cs" />
     <Compile Include="Collection\Trie\ITrie.cs" />
     <Compile Include="Corpus\Dictionary\Item\EnumItem.cs" />
+    <Compile Include="Corpus\IO\IOUtil.cs" />
     <Compile Include="Corpus\Tag\Nature.cs" />
+    <Compile Include="Corpus\Tag\NR.cs" />
+    <Compile Include="Corpus\Tag\NS.cs" />
+    <Compile Include="Corpus\Tag\NT.cs" />
     <Compile Include="Corpus\Util\CustomNatureUtility.cs" />
+    <Compile Include="Dictionary\BaseSearcher.cs" />
+    <Compile Include="Dictionary\Common\CommonDictionary.cs" />
     <Compile Include="Dictionary\CoreBiGramTableDictionary.cs" />
     <Compile Include="Dictionary\CoreDictionary.cs" />
     <Compile Include="Dictionary\CoreDictionaryTransformMatrixDictionary.cs" />
     <Compile Include="Dictionary\CustomDictionary.cs" />
+    <Compile Include="Dictionary\NR\JapanesePersonDictionary.cs" />
+    <Compile Include="Dictionary\NR\JapanesePersonRecognition.cs" />
+    <Compile Include="Dictionary\NR\NRConstant.cs" />
+    <Compile Include="Dictionary\NR\NRDictionary.cs" />
+    <Compile Include="Dictionary\NR\NRPattern.cs" />
+    <Compile Include="Dictionary\NR\PersonDictionary.cs" />
+    <Compile Include="Dictionary\NR\TranslatedPersonDictionary.cs" />
+    <Compile Include="Dictionary\NR\TranslatedPersonRecognition.cs" />
     <Compile Include="Dictionary\Other\CharTable.cs" />
     <Compile Include="Dictionary\Other\CharType.cs" />
     <Compile Include="Dictionary\TransformMatrixDictionary.cs" />
+    <Compile Include="Recognition\NR\PersonRecognition.cs" />
     <Compile Include="Seg\Common\Edge.cs" />
     <Compile Include="Seg\Common\EdgeFrom.cs" />
     <Compile Include="Seg\Common\Graph.cs" />
@@ -84,6 +101,7 @@
     <Compile Include="ShiboWordSegment.cs" />
     <Compile Include="Summary\BM25.cs" />
     <Compile Include="Summary\TextRankSentence.cs" />
+    <Compile Include="Utility\ByteUtil.cs" />
     <Compile Include="Utility\LexiconUtility.cs" />
     <Compile Include="Utility\MathTools.cs" />
     <Compile Include="Utility\Predefine.cs" />
@@ -92,6 +110,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Recognition\NS\" />
+    <Folder Include="Recognition\NT\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

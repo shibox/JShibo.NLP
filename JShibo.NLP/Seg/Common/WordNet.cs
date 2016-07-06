@@ -18,7 +18,7 @@ namespace JShibo.NLP.Seg.Common
         /**
          * 节点，每一行都是前缀词，跟图的表示方式不同
          */
-        private List<Vertex>[] vertexes;
+        private LinkedList<Vertex>[] vertexes;
 
         /**
          * 共有多少个节点
@@ -51,29 +51,29 @@ namespace JShibo.NLP.Seg.Common
         public WordNet(char[] charArray)
         {
             this.charArray = charArray;
-            vertexes = new List<Vertex>[charArray.Length + 2];
+            vertexes = new LinkedList<Vertex>[charArray.Length + 2];
             for (int i = 0; i < vertexes.Length; ++i)
             {
-                vertexes[i] = new List<Vertex>();
+                vertexes[i] = new LinkedList<Vertex>();
             }
-            vertexes[0].Add(Vertex.newB());
-            vertexes[vertexes.Length - 1].Add(Vertex.newE());
+            vertexes[0].AddLast(Vertex.newB());
+            vertexes[vertexes.Length - 1].AddLast(Vertex.newE());
             size = 2;
         }
 
         public WordNet(char[] charArray, List<Vertex> vertexList)
         {
             this.charArray = charArray;
-            vertexes = new List<Vertex>[charArray.Length + 2];
+            vertexes = new LinkedList<Vertex>[charArray.Length + 2];
             int i = 0;
             for (i = 0; i < vertexes.Length; ++i)
             {
-                vertexes[i] = new List<Vertex>();
+                vertexes[i] = new LinkedList<Vertex>();
             }
             i = 0;
             foreach (Vertex vertex in vertexList)
             {
-                vertexes[i].Add(vertex);
+                vertexes[i].AddLast(vertex);
                 ++size;
                 i += vertex.realWord.Length;
             }
@@ -92,7 +92,7 @@ namespace JShibo.NLP.Seg.Common
                 // 保证唯一性
                 if (oldVertex.realWord.Length == vertex.realWord.Length) return;
             }
-            vertexes[line].Add(vertex);
+            vertexes[line].AddLast(vertex);
             ++size;
         }
 
@@ -134,7 +134,7 @@ namespace JShibo.NLP.Seg.Common
             //        break;
             //    }
             //}
-            vertexes[line].Add(vertex);
+            vertexes[line].AddLast(vertex);
             ++size;
         }
 
@@ -152,7 +152,7 @@ namespace JShibo.NLP.Seg.Common
                 // 保证唯一性
                 if (oldVertex.realWord.Length == vertex.realWord.Length) return;
             }
-            vertexes[line].Add(vertex);
+            vertexes[line].AddLast(vertex);
             ++size;
             // 保证连接
             int l = 0;
@@ -162,7 +162,7 @@ namespace JShibo.NLP.Seg.Common
                 {
                     Vertex first = wordNetAll.getFirst(l);
                     if (first == null) break;
-                    vertexes[l].Add(first);
+                    vertexes[l].AddLast(first);
                     ++size;
                     if (vertexes[l].Count > 1) break;
                 }
@@ -175,7 +175,7 @@ namespace JShibo.NLP.Seg.Common
             l = line + vertex.realWord.Length;
             if (get(l).Count == 0)
             {
-                List<Vertex> targetLine = wordNetAll.get(l);
+                LinkedList<Vertex> targetLine = wordNetAll.get(l);
                 if (targetLine == null || targetLine.Count == 0) return;
                 vertexes[l].AddRange(targetLine);
                 size += targetLine.Count;
@@ -187,7 +187,7 @@ namespace JShibo.NLP.Seg.Common
                 {
                     Vertex first = wordNetAll.getFirst(l);
                     if (first == null) break;
-                    vertexes[l].Add(first);
+                    vertexes[l].AddLast(first);
                     ++size;
                     if (vertexes[l].Count > 1) break;
                 }
@@ -219,7 +219,7 @@ namespace JShibo.NLP.Seg.Common
          * @param line 行号
          * @return 一个数组
          */
-        public List<Vertex> get(int line)
+        public LinkedList<Vertex> get(int line)
         {
             return vertexes[line];
         }
@@ -232,7 +232,7 @@ namespace JShibo.NLP.Seg.Common
          */
         public Vertex getFirst(int line)
         {
-            List<Vertex>.Enumerator iterator = vertexes[line].GetEnumerator();
+            LinkedList<Vertex>.Enumerator iterator = vertexes[line].GetEnumerator();
             if (iterator.MoveNext()) return iterator.Current;
 
             return null;
@@ -315,7 +315,7 @@ namespace JShibo.NLP.Seg.Common
         {
             Vertex[] vertexes = new Vertex[size];
             int i = 0;
-            foreach (List<Vertex> vertexList in this.vertexes)
+            foreach (LinkedList<Vertex> vertexList in this.vertexes)
             {
                 foreach (Vertex v in vertexList)
                 {
@@ -338,7 +338,7 @@ namespace JShibo.NLP.Seg.Common
 
             for (int row = 0; row < vertexes.Length - 1; ++row)
             {
-                List<Vertex> vertexListFrom = vertexes[row];
+                LinkedList<Vertex> vertexListFrom = vertexes[row];
                 foreach (Vertex from in vertexListFrom)
                 {
                     //assert from.realWord.length() > 0 : "空节点会导致死循环！";
@@ -360,7 +360,7 @@ namespace JShibo.NLP.Seg.Common
             //                '}';
             StringBuilder sb = new StringBuilder();
             int line = 0;
-            foreach (List<Vertex> vertexList in vertexes)
+            foreach (LinkedList<Vertex> vertexList in vertexes)
             {
                 sb.Append(line + ':' + vertexList.ToString()).Append("\n");
                 line++;
@@ -375,15 +375,15 @@ namespace JShibo.NLP.Seg.Common
         {
             for (int row = 0; row < vertexes.Length - 1; ++row)
             {
-                List<Vertex> vertexListFrom = vertexes[row];
-                List<Vertex>.Enumerator listIteratorFrom = vertexListFrom.GetEnumerator();
+                LinkedList<Vertex> vertexListFrom = vertexes[row];
+                LinkedList<Vertex>.Enumerator listIteratorFrom = vertexListFrom.GetEnumerator();
                 while (listIteratorFrom.MoveNext())
                 {
                     Vertex from = listIteratorFrom.Current;
                     if (from.getNature() == Nature.ns)
                     {
                         int toIndex = row + from.realWord.Length;
-                        List<Vertex>.Enumerator listIteratorTo = vertexes[toIndex].GetEnumerator();
+                        LinkedList<Vertex>.Enumerator listIteratorTo = vertexes[toIndex].GetEnumerator();
                         while (listIteratorTo.MoveNext())
                         {
                             Vertex to = listIteratorTo.Current;
@@ -407,7 +407,7 @@ namespace JShibo.NLP.Seg.Common
          */
         public void clear()
         {
-            foreach (List<Vertex> vertexList in vertexes)
+            foreach (LinkedList<Vertex> vertexList in vertexes)
             {
                 vertexList.Clear();
             }
@@ -419,7 +419,7 @@ namespace JShibo.NLP.Seg.Common
          *
          * @return
          */
-        public List<Vertex>[] getVertexes()
+        public LinkedList<Vertex>[] getVertexes()
         {
             return vertexes;
         }
