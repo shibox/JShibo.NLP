@@ -64,7 +64,7 @@ namespace JShibo.NLP.Dictionary.NS
          * @param wordNetOptimum 待优化的图
          * @param wordNetAll
          */
-        public static void parsePattern(List<Corpus.Tag.NS> nsList, List<Vertex> vertexList, WordNet wordNetOptimum, WordNet wordNetAll)
+        public static void parsePattern(List<Corpus.Tag.NS> nsList, LinkedList<Vertex> vertexList, WordNet wordNetOptimum, WordNet wordNetAll)
         {
             //        ListIterator<Vertex> listIterator = vertexList.listIterator();
             StringBuilder sbPattern = new StringBuilder(nsList.Count);

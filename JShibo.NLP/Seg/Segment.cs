@@ -168,7 +168,7 @@ namespace JShibo.NLP.Seg
          * @param vertexList 粗分结果
          * @return 合并后的结果
          */
-        protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList)
+        protected static LinkedList<Vertex> combineByCustomDictionary(LinkedList<Vertex> vertexList)
         {
             Vertex[] wordNet = vertexList.ToArray();
             // DAT合并
@@ -249,7 +249,7 @@ namespace JShibo.NLP.Seg
             vertexList.Clear();
             foreach (Vertex vertex in wordNet)
             {
-                if (vertex != null) vertexList.Add(vertex);
+                if (vertex != null) vertexList.AddLast(vertex);
             }
             return vertexList;
         }
@@ -258,11 +258,11 @@ namespace JShibo.NLP.Seg
          * 合并数字
          * @param termList
          */
-        protected void mergeNumberQuantifier(List<Vertex> termList, WordNet wordNetAll, Config config)
+        protected void mergeNumberQuantifier(LinkedList<Vertex> termList, WordNet wordNetAll, Config config)
         {
             if (termList.Count < 4) return;
             StringBuilder sbQuantifier = new StringBuilder();
-            List<Vertex>.Enumerator iterator = termList.GetEnumerator();
+            LinkedList<Vertex>.Enumerator iterator = termList.GetEnumerator();
             //iterator.next();
             int line = 1;
             while (iterator.MoveNext())
@@ -319,14 +319,14 @@ namespace JShibo.NLP.Seg
          */
         private static void removeFromWordNet(Vertex cur, WordNet wordNetAll, int line, int length)
         {
-            List<Vertex>[] vertexes = wordNetAll.getVertexes();
+            LinkedList<Vertex>[] vertexes = wordNetAll.getVertexes();
             // 将其从wordNet中删除
             foreach (Vertex vertex in vertexes[line + length])
             {
                 if (vertex.from == cur)
                     vertex.from = null;
             }
-            List<Vertex>.Enumerator iterator = vertexes[line + length - cur.realWord.Length].GetEnumerator();
+            LinkedList<Vertex>.Enumerator iterator = vertexes[line + length - cur.realWord.Length].GetEnumerator();
             while (iterator.MoveNext())
             {
                 Vertex vertex = iterator.Current;

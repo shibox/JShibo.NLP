@@ -61,7 +61,7 @@ namespace JShibo.NLP.Dictionary.NR
          * @param wordNetOptimum 待优化的图
          * @param wordNetAll     全词图
          */
-        public static void parsePattern(List<Corpus.Tag.NR> nrList, List<Vertex> vertexList, WordNet wordNetOptimum, WordNet wordNetAll)
+        public static void parsePattern(List<Corpus.Tag.NR> nrList, LinkedList<Vertex> vertexList, WordNet wordNetOptimum, WordNet wordNetAll)
         {
             //    // 拆分UV
             //    ListIterator<Vertex> listIterator = vertexList.listIterator();

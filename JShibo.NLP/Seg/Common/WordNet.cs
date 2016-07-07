@@ -61,7 +61,7 @@ namespace JShibo.NLP.Seg.Common
             size = 2;
         }
 
-        public WordNet(char[] charArray, List<Vertex> vertexList)
+        public WordNet(char[] charArray, LinkedList<Vertex> vertexList)
         {
             this.charArray = charArray;
             vertexes = new LinkedList<Vertex>[charArray.Length + 2];
@@ -177,7 +177,9 @@ namespace JShibo.NLP.Seg.Common
             {
                 LinkedList<Vertex> targetLine = wordNetAll.get(l);
                 if (targetLine == null || targetLine.Count == 0) return;
-                vertexes[l].AddRange(targetLine);
+                //vertexes[l].AddRange(targetLine);
+                foreach (Vertex item in targetLine)
+                    vertexes[l].AddLast(item);
                 size += targetLine.Count;
             }
             // 直达之后一直往后
@@ -203,7 +205,7 @@ namespace JShibo.NLP.Seg.Common
          *
          * @param vertexList
          */
-        public void addAll(List<Vertex> vertexList)
+        public void addAll(LinkedList<Vertex> vertexList)
         {
             int i = 0;
             foreach (Vertex vertex in vertexList)

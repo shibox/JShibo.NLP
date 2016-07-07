@@ -81,6 +81,13 @@
     <Compile Include="Dictionary\NS\PlaceDictionary.cs" />
     <Compile Include="Dictionary\NT\NTDictionary.cs" />
     <Compile Include="Dictionary\NT\OrganizationDictionary.cs" />
+    <Compile Include="Dictionary\PY\Head.cs" />
+    <Compile Include="Dictionary\PY\Pinyin.cs" />
+    <Compile Include="Dictionary\PY\PinyinDictionary.cs" />
+    <Compile Include="Dictionary\PY\Shengmu.cs" />
+    <Compile Include="Dictionary\PY\Yunmu.cs" />
+    <Compile Include="Dictionary\TS\BaseChineseDictionary.cs" />
+    <Compile Include="Dictionary\TS\SimplifiedChineseDictionary.cs" />
     <Compile Include="Recognition\NR\JapanesePersonDictionary.cs" />
     <Compile Include="Dictionary\NR\JapanesePersonRecognition.cs" />
     <Compile Include="Dictionary\NR\NRConstant.cs" />
@@ -113,6 +120,8 @@
     <Compile Include="ShiboWordSegment.cs" />
     <Compile Include="Summary\BM25.cs" />
     <Compile Include="Summary\TextRankSentence.cs" />
+    <Compile Include="Tokenizer\NLPTokenizer.cs" />
+    <Compile Include="Tokenizer\StandardTokenizer.cs" />
     <Compile Include="Utility\ByteUtil.cs" />
     <Compile Include="Utility\LexiconUtility.cs" />
     <Compile Include="Utility\MathTools.cs" />

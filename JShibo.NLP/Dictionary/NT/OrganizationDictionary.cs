@@ -3719,7 +3719,7 @@ public class OrganizationDictionary
      * @param wordNetOptimum 待优化的图
      * @param wordNetAll
      */
-    public static void parsePattern(List<Corpus.Tag.NT> ntList, List<Vertex> vertexList, WordNet wordNetOptimum, WordNet wordNetAll)
+    public static void parsePattern(LinkedList<Corpus.Tag.NT> ntList, LinkedList<Vertex> vertexList, WordNet wordNetOptimum, WordNet wordNetAll)
     {
         //        ListIterator<Vertex> listIterator = vertexList.listIterator();
         StringBuilder sbPattern = new StringBuilder(ntList.Count);
@@ -3729,8 +3729,9 @@ public class OrganizationDictionary
         }
         String pattern = sbPattern.ToString();
         IEnumerable<Emit> emitCollection = trie.parseText(pattern);
-        Vertex[] wordArray = vertexList.toArray(new Vertex[0]);
-        foreach (Emit emit in emitCollection)
+            //Vertex[] wordArray = vertexList.toArray(new Vertex[0]);
+            Vertex[] wordArray = vertexList.ToArray();
+            foreach (Emit emit in emitCollection)
         {
             String keyword = emit.getKeyword();
             int start = emit.getStart();

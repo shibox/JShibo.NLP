@@ -25,7 +25,7 @@ namespace JShibo.NLP.Dictionary.NR
          * @param wordNetOptimum 粗分结果对应的词图
          * @param wordNetAll     全词图
          */
-        public static void Recognition(List<Vertex> segResult, WordNet wordNetOptimum, WordNet wordNetAll)
+        public static void Recognition(LinkedList<Vertex> segResult, WordNet wordNetOptimum, WordNet wordNetAll)
         {
             StringBuilder sbName = new StringBuilder();
             int appendTimes = 0;

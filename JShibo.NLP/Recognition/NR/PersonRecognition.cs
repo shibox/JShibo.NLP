@@ -17,9 +17,9 @@ namespace JShibo.NLP.Recognition.NR
  */
     public class PersonRecognition
     {
-        public static bool Recognition(List<Vertex> pWordSegResult, WordNet wordNetOptimum, WordNet wordNetAll)
+        public static bool Recognition(LinkedList<Vertex> pWordSegResult, WordNet wordNetOptimum, WordNet wordNetAll)
         {
-            List<EnumItem<Corpus.Tag.NR>> roleTagList = roleObserve(pWordSegResult);
+            LinkedList<EnumItem<Corpus.Tag.NR>> roleTagList = roleObserve(pWordSegResult);
             if (HanLP.Config.DEBUG)
             {
                 StringBuilder sbLog = new StringBuilder();
@@ -61,9 +61,9 @@ namespace JShibo.NLP.Recognition.NR
          * @param wordSegResult 粗分结果
          * @return
          */
-        public static List<EnumItem<Corpus.Tag.NR>> roleObserve(List<Vertex> wordSegResult)
+        public static LinkedList<EnumItem<Corpus.Tag.NR>> roleObserve(LinkedList<Vertex> wordSegResult)
         {
-            List<EnumItem<Corpus.Tag.NR>> tagList = new List<EnumItem<Corpus.Tag.NR>>();
+            LinkedList<EnumItem<Corpus.Tag.NR>> tagList = new LinkedList<EnumItem<Corpus.Tag.NR>>();
             foreach (Vertex vertex in wordSegResult)
             {
                 EnumItem<Corpus.Tag.NR> nrEnumItem = PersonDictionary.dictionary.get(vertex.realWord);
@@ -94,7 +94,7 @@ namespace JShibo.NLP.Recognition.NR
                             break;
                     }
                 }
-                tagList.Add(nrEnumItem);
+                tagList.AddLast(nrEnumItem);
             }
             return tagList;
         }
@@ -114,7 +114,7 @@ namespace JShibo.NLP.Recognition.NR
          * @param roleTagList
          * @return
          */
-        public static List<Corpus.Tag.NR> viterbiComputeSimply(List<EnumItem<Corpus.Tag.NR>> roleTagList)
+        public static List<Corpus.Tag.NR> viterbiComputeSimply(LinkedList<EnumItem<Corpus.Tag.NR>> roleTagList)
         {
             return Viterbi.computeEnumSimply(roleTagList, PersonDictionary.transformMatrixDictionary);
         }

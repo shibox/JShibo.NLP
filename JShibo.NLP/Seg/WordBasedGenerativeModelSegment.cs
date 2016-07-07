@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Algoritm;
+
 
 namespace JShibo.NLP.Seg
 {
@@ -34,7 +34,7 @@ namespace JShibo.NLP.Seg
      * @param linkedArray    粗分结果
      * @param wordNetOptimum 合并了所有粗分结果的词网
      */
-    protected static void GenerateWord(List<Vertex> linkedArray, WordNet wordNetOptimum)
+    protected static void GenerateWord(LinkedList<Vertex> linkedArray, WordNet wordNetOptimum)
     {
         fixResultByRule(linkedArray);
 
@@ -48,7 +48,7 @@ namespace JShibo.NLP.Seg
      *
      * @param linkedArray
      */
-    protected static void fixResultByRule(List<Vertex> linkedArray)
+    protected static void fixResultByRule(LinkedList<Vertex> linkedArray)
     {
 
         //--------------------------------------------------------------------
@@ -59,23 +59,23 @@ namespace JShibo.NLP.Seg
         //The delimiter "－－"
         ChangeDelimiterPOS(linkedArray);
 
-        //--------------------------------------------------------------------
-        //如果前一个词是数字，当前词以“－”或“-”开始，并且不止这一个字符，
-        //那么将此“－”符号从当前词中分离出来。
-        //例如 “3 / -4 / 月”需要拆分成“3 / - / 4 / 月”
-        SplitMiddleSlashFromDigitalWords(linkedArray);
+            //--------------------------------------------------------------------
+            //如果前一个词是数字，当前词以“－”或“-”开始，并且不止这一个字符，
+            //那么将此“－”符号从当前词中分离出来。
+            //例如 “3 / -4 / 月”需要拆分成“3 / - / 4 / 月”
+            SplitMiddleSlashFromDigitalWords(linkedArray);
 
-        //--------------------------------------------------------------------
-        //1、如果当前词是数字，下一个词是“月、日、时、分、秒、月份”中的一个，则合并,且当前词词性是时间
-        //2、如果当前词是可以作为年份的数字，下一个词是“年”，则合并，词性为时间，否则为数字。
-        //3、如果最后一个汉字是"点" ，则认为当前数字是时间
-        //4、如果当前串最后一个汉字不是"∶·．／"和半角的'.''/'，那么是数
-        //5、当前串最后一个汉字是"∶·．／"和半角的'.''/'，且长度大于1，那么去掉最后一个字符。例如"1."
-        CheckDateElements(linkedArray);
+            //--------------------------------------------------------------------
+            //1、如果当前词是数字，下一个词是“月、日、时、分、秒、月份”中的一个，则合并,且当前词词性是时间
+            //2、如果当前词是可以作为年份的数字，下一个词是“年”，则合并，词性为时间，否则为数字。
+            //3、如果最后一个汉字是"点" ，则认为当前数字是时间
+            //4、如果当前串最后一个汉字不是"∶·．／"和半角的'.''/'，那么是数
+            //5、当前串最后一个汉字是"∶·．／"和半角的'.''/'，且长度大于1，那么去掉最后一个字符。例如"1."
+            CheckDateElements(linkedArray);
 
     }
 
-    static void ChangeDelimiterPOS(List<Vertex> linkedArray)
+    static void ChangeDelimiterPOS(LinkedList<Vertex> linkedArray)
     {
         foreach (Vertex vertex in linkedArray)
         {
@@ -91,17 +91,18 @@ namespace JShibo.NLP.Seg
     //那么将此“－”符号从当前词中分离出来。
     //例如 “3-4 / 月”需要拆分成“3 / - / 4 / 月”
     //====================================================================
-    private static void SplitMiddleSlashFromDigitalWords(List<Vertex> linkedArray)
+    private static void SplitMiddleSlashFromDigitalWords(LinkedList<Vertex> linkedArray)
     {
         if (linkedArray.Count < 2)
             return;
 
-        ListIterator<Vertex> listIterator = linkedArray.listIterator();
-        Vertex next = listIterator.next();
+            LinkedList<Vertex>.Enumerator listIterator = linkedArray.GetEnumerator();
+            listIterator.MoveNext();
+        Vertex next = listIterator.Current;
         Vertex current = next;
-        while (listIterator.hasNext())
+        while (listIterator.MoveNext())
         {
-            next = listIterator.next();
+            next = listIterator.Current;
             //            System.out.println("current:" + current + " next:" + next);
             Nature currentNature = current.getNature();
             if (currentNature == Nature.nx && (next.hasNature(Nature.q) || next.hasNature(Nature.n)))
@@ -114,12 +115,12 @@ namespace JShibo.NLP.Seg
                         current = current.copy();
                         current.realWord = param[0];
                         current.confirmNature(Nature.m);
-                        listIterator.previous();
-                        listIterator.previous();
-                        listIterator.set(current);
-                        listIterator.next();
-                        listIterator.add(Vertex.newPunctuationInstance("-"));
-                        listIterator.add(Vertex.newNumberInstance(param[1]));
+                        //listIterator.previous();
+                        //listIterator.previous();
+                        //listIterator.set(current);
+                        //listIterator.next();
+                        //listIterator.add(Vertex.newPunctuationInstance("-"));
+                        //listIterator.add(Vertex.newNumberInstance(param[1]));
                     }
                 }
             }
@@ -136,11 +137,11 @@ namespace JShibo.NLP.Seg
     //4、如果当前串最后一个汉字不是"∶·．／"和半角的'.''/'，那么是数
     //5、当前串最后一个汉字是"∶·．／"和半角的'.''/'，且长度大于1，那么去掉最后一个字符。例如"1."
     //====================================================================
-    private static void CheckDateElements(List<Vertex> linkedArray)
+    private static void CheckDateElements(LinkedList<Vertex> linkedArray)
     {
         if (linkedArray.Count < 2)
             return;
-            List<Vertex>.Enumerator listIterator = linkedArray.GetEnumerator();
+            LinkedList<Vertex>.Enumerator listIterator = linkedArray.GetEnumerator();
             listIterator.MoveNext();
             Vertex next = listIterator.Current;
         Vertex current = next;
@@ -222,13 +223,13 @@ namespace JShibo.NLP.Seg
      * @param offsetEnabled 是否计算offset
      * @return
      */
-    protected static List<Term> convert(List<Vertex> vertexList, bool offsetEnabled)
+    protected static List<Term> convert(LinkedList<Vertex> vertexList, bool offsetEnabled)
     {
         //assert vertexList != null;
         //assert vertexList.size() >= 2 : "这条路径不应当短于2" + vertexList.toString();
         int length = vertexList.Count - 2;
         List<Term> resultList = new List<Term>(length);
-            List<Vertex>.Enumerator iterator = vertexList.GetEnumerator();
+            LinkedList<Vertex>.Enumerator iterator = vertexList.GetEnumerator();
             iterator.MoveNext();
         //iterator.next();
         if (offsetEnabled)
@@ -263,7 +264,7 @@ namespace JShibo.NLP.Seg
      * @param vertexList
      * @return
      */
-    protected static List<Term> convert(List<Vertex> vertexList)
+    protected static List<Term> convert(LinkedList<Vertex> vertexList)
     {
         return convert(vertexList, false);
     }
@@ -376,12 +377,12 @@ namespace JShibo.NLP.Seg
      *
      * @param linkedArray
      */
-    private static void mergeContinueNumIntoOne(List<Vertex> linkedArray)
+    private static void mergeContinueNumIntoOne(LinkedList<Vertex> linkedArray)
     {
         if (linkedArray.Count < 2)
             return;
 
-            List<Vertex>.Enumerator listIterator = linkedArray.GetEnumerator();
+            LinkedList<Vertex>.Enumerator listIterator = linkedArray.GetEnumerator();
             listIterator.MoveNext();
             Vertex next = listIterator.Current;
         Vertex current = next;
@@ -428,18 +429,19 @@ namespace JShibo.NLP.Seg
         {
             wordNetStorage.add(searcher.begin + 1, new Vertex(new String(charArray, searcher.begin, searcher.length), searcher.value, searcher.index));
         }
-        // 用户词典查询
-        //        if (config.useCustomDictionary)
-        //        {
-        //            searcher = CustomDictionary.dat.getSearcher(charArray, 0);
-        //            while (searcher.next())
-        //            {
-        //                wordNetStorage.add(searcher.begin + 1, new Vertex(new String(charArray, searcher.begin, searcher.length), searcher.value));
-        //            }
-        //        }
-        // 原子分词，保证图连通
-        List<Vertex>[] vertexes = wordNetStorage.getVertexes();
-        for (int i = 1; i < vertexes.Length;)
+            // 用户词典查询
+            //        if (config.useCustomDictionary)
+            //        {
+            //            searcher = CustomDictionary.dat.getSearcher(charArray, 0);
+            //            while (searcher.next())
+            //            {
+            //                wordNetStorage.add(searcher.begin + 1, new Vertex(new String(charArray, searcher.begin, searcher.length), searcher.value));
+            //            }
+            //        }
+            // 原子分词，保证图连通
+            //List<Vertex>[] vertexes = wordNetStorage.getVertexes();
+            List<Vertex>[] vertexes = wordNetStorage.getVertexes();
+            for (int i = 1; i < vertexes.Length;)
         {
             if (vertexes[i].Count == 0)
             {
@@ -461,11 +463,11 @@ namespace JShibo.NLP.Seg
      * @param vertexList
      * @param wordNetAll
      */
-    protected static List<Term> decorateResultForIndexMode(List<Vertex> vertexList, WordNet wordNetAll)
+    protected static LinkedList<Term> decorateResultForIndexMode(LinkedList<Vertex> vertexList, WordNet wordNetAll)
     {
-        List<Term> termList = new List<Term>();
+            LinkedList<Term> termList = new LinkedList<Term>();
         int line = 1;
-            List<Vertex>.Enumerator listIterator = vertexList.GetEnumerator();
+            LinkedList<Vertex>.Enumerator listIterator = vertexList.GetEnumerator();
             listIterator.MoveNext();
         int length = vertexList.Count - 2;
         for (int i = 0; i < length; ++i)
@@ -473,7 +475,7 @@ namespace JShibo.NLP.Seg
                 listIterator.MoveNext();
                        Vertex vertex = listIterator.Current;
             Term termMain = convert(vertex);
-            termList.Add(termMain);
+            termList.AddLast(termMain);
             termMain.offset = line - 1;
             if (vertex.realWord.Length > 2)
             {
@@ -481,7 +483,7 @@ namespace JShibo.NLP.Seg
                 int currentLine = line;
                 while (currentLine < line + vertex.realWord.Length)
                 {
-                    List<Vertex> vertexListCurrentLine = wordNetAll.get(currentLine);    // 这一行的词
+                        LinkedList<Vertex> vertexListCurrentLine = wordNetAll.get(currentLine);    // 这一行的词
                     foreach (Vertex smallVertex in vertexListCurrentLine) // 这一行的短词
                     {
                         if (
@@ -492,7 +494,7 @@ namespace JShibo.NLP.Seg
                             //listIterator.Add(smallVertex);
                             Term termSub = convert(smallVertex);
                             termSub.offset = currentLine - 1;
-                            termList.Add(termSub);
+                            termList.AddLast(termSub);
                         }
                     }
                     ++currentLine;

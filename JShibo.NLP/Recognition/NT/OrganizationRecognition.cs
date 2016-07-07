@@ -18,9 +18,9 @@ namespace JShibo.NLP.Recognition.NT
  */
     public class OrganizationRecognition
     {
-        public static bool Recognition(List<Vertex> pWordSegResult, WordNet wordNetOptimum, WordNet wordNetAll)
+        public static bool Recognition(LinkedList<Vertex> pWordSegResult, WordNet wordNetOptimum, WordNet wordNetAll)
         {
-            List<EnumItem<Corpus.Tag.NT>> roleTagList = roleTag(pWordSegResult, wordNetAll);
+            LinkedList<EnumItem<Corpus.Tag.NT>> roleTagList = roleTag(pWordSegResult, wordNetAll);
             if (HanLP.Config.DEBUG)
             {
                 StringBuilder sbLog = new StringBuilder();
@@ -35,7 +35,7 @@ namespace JShibo.NLP.Recognition.NT
                 }
                 Console.WriteLine("机构名角色观察：%s\n", sbLog.ToString());
             }
-            List<Corpus.Tag.NT> NTList = viterbiExCompute(roleTagList);
+            LinkedList<Corpus.Tag.NT> NTList = viterbiExCompute(roleTagList);
             if (HanLP.Config.DEBUG)
             {
                 StringBuilder sbLog = new StringBuilder();
@@ -57,9 +57,9 @@ namespace JShibo.NLP.Recognition.NT
             return true;
         }
 
-        public static List<EnumItem<Corpus.Tag.NT>> roleTag(List<Vertex> vertexList, WordNet wordNetAll)
+        public static LinkedList<EnumItem<Corpus.Tag.NT>> roleTag(LinkedList<Vertex> vertexList, WordNet wordNetAll)
         {
-            List<EnumItem<Corpus.Tag.NT>> tagList = new List<EnumItem<Corpus.Tag.NT>>();
+            LinkedList<EnumItem<Corpus.Tag.NT>> tagList = new LinkedList<EnumItem<Corpus.Tag.NT>>();
             
             foreach (Vertex vertex in vertexList)
             {
@@ -71,7 +71,7 @@ namespace JShibo.NLP.Recognition.NT
                         {
                             if (vertex.getAttribute().totalFrequency <= 1000)
                             {
-                                tagList.Add(new EnumItem<Corpus.Tag.NT>(Corpus.Tag.NT.F, 1000));
+                                tagList.AddLast(new EnumItem<Corpus.Tag.NT>(Corpus.Tag.NT.F, 1000));
                             }
                             else break;
                         }
@@ -83,13 +83,13 @@ namespace JShibo.NLP.Recognition.NT
                         {
                             EnumItem<Corpus.Tag.NT> ntEnumItem = new EnumItem<Corpus.Tag.NT>(Corpus.Tag.NT.K, 1000);
                             ntEnumItem.addLabel(Corpus.Tag.NT.D, 1000);
-                            tagList.Add(ntEnumItem);
+                            tagList.AddLast(ntEnumItem);
                         }
                         continue;
                     case Nature.m:
                         {
                             EnumItem<Corpus.Tag.NT> ntEnumItem = new EnumItem<Corpus.Tag.NT>(Corpus.Tag.NT.M, 1000);
-                            tagList.Add(ntEnumItem);
+                            tagList.AddLast(ntEnumItem);
                         }
                         continue;
                 }
@@ -99,7 +99,7 @@ namespace JShibo.NLP.Recognition.NT
                 {
                     NTEnumItem = new EnumItem<Corpus.Tag.NT>(Corpus.Tag.NT.Z, OrganizationDictionary.transformMatrixDictionary.getTotalFrequency(Corpus.Tag.NT.Z));
                 }
-                tagList.Add(NTEnumItem);
+                tagList.AddLast(NTEnumItem);
             }
             return tagList;
         }
@@ -110,7 +110,7 @@ namespace JShibo.NLP.Recognition.NT
          * @param roleTagList
          * @return
          */
-        public static List<Corpus.Tag.NT> viterbiExCompute(List<EnumItem<Corpus.Tag.NT>> roleTagList)
+        public static LinkedList<Corpus.Tag.NT> viterbiExCompute(LinkedList<EnumItem<Corpus.Tag.NT>> roleTagList)
         {
             return Viterbi.computeEnum(roleTagList, OrganizationDictionary.transformMatrixDictionary);
         }

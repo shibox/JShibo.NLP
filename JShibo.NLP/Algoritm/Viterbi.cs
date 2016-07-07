@@ -36,18 +36,22 @@ namespace JShibo.NLP.Algoritm
             }
             ++_max_states_value;
             double[,] V = new double[obs.Length,_max_states_value];
-            int[,] path = new int[_max_states_value,obs.Length];
+            int[][] path = new int[_max_states_value][];
+            for (int i = 0; i < path.Length; i++)
+                path[i] = new int[obs.Length];
 
             foreach (int y in states)
             {
                 V[0,y] = start_p[y] + emit_p[y][obs[0]];
-                path[y,0] = y;
+                path[y][0] = y;
             }
             double prob = 0;
             int state = 0;
             for (int t = 1; t < obs.Length; ++t)
             {
-                int[,] newpath = new int[_max_states_value,obs.Length];
+                int[][] newpath = new int[_max_states_value][];
+                for (int i = 0; i < newpath.Length; i++)
+                    newpath[i] = new int[obs.Length];
 
                 foreach (int y in states)
                 {
@@ -63,8 +67,10 @@ namespace JShibo.NLP.Algoritm
                             // 记录最大概率
                             V[t,y] = prob;
                             // 记录路径
-                            System.arraycopy(path[state], 0, newpath[y], 0, t);
-                            newpath[y,t] = y;
+                            //System.arraycopy(path[state], 0, newpath[y], 0, t);
+                            //Buffer.BlockCopy(path[state], 0, newpath[y], 0, t * 4);
+                            Array.Copy(path[state], 0, newpath[y], 0, t);
+                            newpath[y][t] = y;
                         }
                     }
                 }
@@ -96,8 +102,11 @@ namespace JShibo.NLP.Algoritm
         {
             int length = vertexList.Count - 1;
             double[][] cost = new double[2][];  // 滚动数组
-            Iterator<Vertex> iterator = vertexList.iterator();
-            Vertex start = iterator.next();
+            //Iterator<Vertex> iterator = vertexList.iterator();
+            //Vertex start = iterator.next();
+            List<Vertex>.Enumerator iterator = vertexList.GetEnumerator();
+            iterator.MoveNext();
+            Vertex start = iterator.Current;
             Nature pre = start.attribute.nature[0];
             // 第一个是确定的
             //        start.confirmNature(pre);
@@ -105,13 +114,14 @@ namespace JShibo.NLP.Algoritm
             Vertex preItem;
             Nature[] preTagSet;
             {
-                Vertex item = iterator.next();
+                iterator.MoveNext();
+                Vertex item = iterator.Current;
                 cost[0] = new double[item.attribute.nature.Length];
                 int j = 0;
                 int curIndex = 0;
                 foreach (Nature cur in item.attribute.nature)
                 {
-                    cost[0][j] = transformMatrixDictionary.transititon_probability[pre.ordinal()][cur.ordinal()] - Math.Log((item.attribute.frequency[curIndex] + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+                    cost[0][j] = transformMatrixDictionary.transititon_probability[(int)pre][(int)cur] - Math.Log((item.attribute.frequency[curIndex] + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
                     ++j;
                     ++curIndex;
                 }
@@ -123,7 +133,8 @@ namespace JShibo.NLP.Algoritm
             {
                 int index_i = i & 1;
                 int index_i_1 = 1 - index_i;
-                Vertex item = iterator.next();
+                iterator.MoveNext();
+                Vertex item = iterator.Current;
                 cost[index_i] = new double[item.attribute.nature.Length];
                 double perfect_cost_line = Double.MaxValue;
                 int k = 0;
@@ -134,7 +145,7 @@ namespace JShibo.NLP.Algoritm
                     int j = 0;
                     foreach (Nature p in preTagSet)
                     {
-                        double now = cost[index_i_1][j] + transformMatrixDictionary.transititon_probability[p.ordinal()][cur.ordinal()] - Math.Log((item.attribute.frequency[k] + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+                        double now = cost[index_i_1][j] + transformMatrixDictionary.transititon_probability[(int)p][(int)cur] - Math.Log((item.attribute.frequency[k] + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
                         if (now < cost[index_i][k])
                         {
                             cost[index_i][k] = now;
@@ -162,64 +173,65 @@ namespace JShibo.NLP.Algoritm
          * @param <E>                       EnumItem的具体类型
          * @return 预测结果
          */
-        public static  List<E> computeEnum<E>(List<EnumItem<E>> roleTagList, TransformMatrixDictionary<E> transformMatrixDictionary)
+        public static LinkedList<E> computeEnum<E>(LinkedList<EnumItem<E>> roleTagList, TransformMatrixDictionary<E> transformMatrixDictionary)
         {
-            int length = roleTagList.Count - 1;
-            List<E> tagList = new List<E>(roleTagList.Count);
-            double[][] cost = new double[2][];  // 滚动数组
-            Iterator<EnumItem<E>> iterator = roleTagList.iterator();
-            EnumItem<E> start = iterator.next();
-            E pre = start.labelMap.entrySet().iterator().next().getKey();
-            // 第一个是确定的
-            tagList.Add(pre);
-            // 第二个也可以简单地算出来
-            HashSet<E> preTagSet;
-            {
-                EnumItem<E> item = iterator.next();
-                cost[0] = new double[item.labelMap.Count];
-                int j = 0;
-                foreach (E cur in item.labelMap)
-                {
-                    cost[0][j] = transformMatrixDictionary.transititon_probability[pre.ordinal()][cur.ordinal()] - Math.Log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
-                    ++j;
-                }
-                preTagSet = item.labelMap.keySet();
-            }
-            // 第三个开始复杂一些
-            for (int i = 1; i < length; ++i)
-            {
-                int index_i = i & 1;
-                int index_i_1 = 1 - index_i;
-                EnumItem<E> item = iterator.next();
-                cost[index_i] = new double[item.labelMap.Count];
-                double perfect_cost_line = Double.MaxValue;
-                int k = 0;
-                HashSet<E> curTagSet = item.labelMap.keySet();
-                foreach (E cur in curTagSet)
-                {
-                    cost[index_i][k] = Double.MaxValue;
-                    int j = 0;
-                    foreach (E p in preTagSet)
-                    {
-                        double now = cost[index_i_1][j] + transformMatrixDictionary.transititon_probability[p.ordinal()][cur.ordinal()] - Math.Log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
-                        if (now < cost[index_i][k])
-                        {
-                            cost[index_i][k] = now;
-                            if (now < perfect_cost_line)
-                            {
-                                perfect_cost_line = now;
-                                pre = p;
-                            }
-                        }
-                        ++j;
-                    }
-                    ++k;
-                }
-                tagList.Add(pre);
-                preTagSet = curTagSet;
-            }
-            tagList.Add(tagList[0]);    // 对于最后一个##末##
-            return tagList;
+            //int length = roleTagList.Count - 1;
+            //List<E> tagList = new List<E>(roleTagList.Count);
+            //double[][] cost = new double[2][];  // 滚动数组
+            //Iterator<EnumItem<E>> iterator = roleTagList.iterator();
+            //EnumItem<E> start = iterator.next();
+            //E pre = start.labelMap.entrySet().iterator().next().getKey();
+            //// 第一个是确定的
+            //tagList.Add(pre);
+            //// 第二个也可以简单地算出来
+            //HashSet<E> preTagSet;
+            //{
+            //    EnumItem<E> item = iterator.next();
+            //    cost[0] = new double[item.labelMap.Count];
+            //    int j = 0;
+            //    foreach (E cur in item.labelMap)
+            //    {
+            //        cost[0][j] = transformMatrixDictionary.transititon_probability[(int)pre][(int)cur] - Math.Log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+            //        ++j;
+            //    }
+            //    preTagSet = item.labelMap.keySet();
+            //}
+            //// 第三个开始复杂一些
+            //for (int i = 1; i < length; ++i)
+            //{
+            //    int index_i = i & 1;
+            //    int index_i_1 = 1 - index_i;
+            //    EnumItem<E> item = iterator.next();
+            //    cost[index_i] = new double[item.labelMap.Count];
+            //    double perfect_cost_line = Double.MaxValue;
+            //    int k = 0;
+            //    HashSet<E> curTagSet = item.labelMap.keySet();
+            //    foreach (E cur in curTagSet)
+            //    {
+            //        cost[index_i][k] = Double.MaxValue;
+            //        int j = 0;
+            //        foreach (E p in preTagSet)
+            //        {
+            //            double now = cost[index_i_1][j] + transformMatrixDictionary.transititon_probability[p.ordinal()][cur.ordinal()] - Math.Log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+            //            if (now < cost[index_i][k])
+            //            {
+            //                cost[index_i][k] = now;
+            //                if (now < perfect_cost_line)
+            //                {
+            //                    perfect_cost_line = now;
+            //                    pre = p;
+            //                }
+            //            }
+            //            ++j;
+            //        }
+            //        ++k;
+            //    }
+            //    tagList.Add(pre);
+            //    preTagSet = curTagSet;
+            //}
+            //tagList.Add(tagList[0]);    // 对于最后一个##末##
+            //return tagList;
+            return null;
         }
 
         /**
@@ -230,33 +242,35 @@ namespace JShibo.NLP.Algoritm
          * @param <E>                       EnumItem的具体类型
          * @return 预测结果
          */
-        public static List<E> computeEnumSimply<E>(List<EnumItem<E>> roleTagList, TransformMatrixDictionary<E> transformMatrixDictionary)
+        public static List<E> computeEnumSimply<E>(LinkedList<EnumItem<E>> roleTagList, TransformMatrixDictionary<E> transformMatrixDictionary)
         {
-            int length = roleTagList.Count - 1;
-            List<E> tagList = new List<E>();
-            Iterator<EnumItem<E>> iterator = roleTagList.iterator();
-            EnumItem<E> start = iterator.next();
-            E pre = start.labelMap.entrySet().iterator().next().getKey();
-            E perfect_tag = pre;
-            // 第一个是确定的
-            tagList.Add(pre);
-            for (int i = 0; i < length; ++i)
-            {
-                double perfect_cost = Double.MaxValue;
-                EnumItem<E> item = iterator.next();
-                foreach (E cur in item.labelMap)
-                {
-                    double now = transformMatrixDictionary.transititon_probability[pre.ordinal()][cur.ordinal()] - Math.Log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
-                    if (perfect_cost > now)
-                    {
-                        perfect_cost = now;
-                        perfect_tag = cur;
-                    }
-                }
-                pre = perfect_tag;
-                tagList.Add(pre);
-            }
-            return tagList;
+            //int length = roleTagList.Count - 1;
+            //List<E> tagList = new List<E>();
+            //Iterator<EnumItem<E>> iterator = roleTagList.iterator();
+            //EnumItem<E> start = iterator.next();
+            //E pre = start.labelMap.entrySet().iterator().next().getKey();
+            //E perfect_tag = pre;
+            //// 第一个是确定的
+            //tagList.Add(pre);
+            //for (int i = 0; i < length; ++i)
+            //{
+            //    double perfect_cost = Double.MaxValue;
+            //    EnumItem<E> item = iterator.next();
+            //    foreach (E cur in item.labelMap)
+            //    {
+            //        double now = transformMatrixDictionary.transititon_probability[pre.ordinal()][cur.ordinal()] - Math.Log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+            //        if (perfect_cost > now)
+            //        {
+            //            perfect_cost = now;
+            //            perfect_tag = cur;
+            //        }
+            //    }
+            //    pre = perfect_tag;
+            //    tagList.Add(pre);
+            //}
+            //return tagList;
+
+            return null;
         }
     }
 }
